@@ -55,16 +55,17 @@ ROOT_URLCONF = 'core.urls'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-# # Configure CORS
-# CORS_ALLOWED_ORIGINS = [
-#     "https://simul-website.vercel.app", 
-#      "http://localhost:3000" # Add your frontend's origin here
-#     # Add any other origins you want to allow
-# ]
+# Configure CORS
+CORS_ALLOWED_ORIGINS = [
+    "https://simul-website.vercel.app", 
+    "https://new-cmvp-site.vercel.app", 
+     "http://localhost:3000" # Add your frontend's origin here
+    # Add any other origins you want to allow
+]
 
 # Optional: Allow all origins (for development only)
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -122,30 +123,30 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvp_db_jgdw',
-        'USER': 'cmvp_db_jgdw_user',
-        'PASSWORD': 'DbDdhmNP8kVuSD9AVZ5mMS3JZDIodbBA',
-        'HOST': 'dpg-cti0m9t6l47c738dc700-a.oregon-postgres.render.com',
+        'NAME': 'cmvp_db_hv2b',  # Database name
+        'USER': 'cmvp_db_hv2b_user',  # Database username
+        'PASSWORD': 's8yGGMANsQMK0JSk3UKAzrlkfR1CUwV7',  # Database password
+        'HOST': 'dpg-cti39llumphs73fodp60-a.oregon-postgres.render.com',  # Database host
         'PORT': '5432',  # Default PostgreSQL port
     }
 }
 
 
-
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",

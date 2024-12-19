@@ -1,6 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import CertificateCreateView, CertificateVerificationView, CertificateSoftDeleteView, CertificateRestoreView, SoftDeletedCertificateView
+from .views import (
+    CertificateCreateView,
+    CertificateVerificationByOrganizationView,
+    SoftDeletedCertificateView,
+    CertificateSoftDeleteView,
+    CertificateRestoreView
+)
 
 router = DefaultRouter()
 router.register(r'create', CertificateCreateView)
@@ -8,7 +14,7 @@ router.register(r'create', CertificateCreateView)
 urlpatterns = [
     path('', include(router.urls)),
     path('soft-deleted-certificates/', SoftDeletedCertificateView.as_view(), name='soft-deleted-certificates'),
-    path('verify/', CertificateVerificationView.as_view(), name='verify_certificate'),
     path('<str:certificate_id>/delete/', CertificateSoftDeleteView.as_view(), name='soft_delete_certificate'),
     path('<str:certificate_id>/restore/', CertificateRestoreView.as_view(), name='restore_certificate'),
+    path('verify-certificate/<str:unique_subscriber_id>/', CertificateVerificationByOrganizationView.as_view(), name='verify-certificate-by-org'),
 ]
