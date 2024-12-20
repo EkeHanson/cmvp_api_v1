@@ -53,7 +53,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'core.urls'
 
 
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.Organization'
 
 # Configure CORS
 CORS_ALLOWED_ORIGINS = [
@@ -135,10 +135,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvp_db_hv2b',  # Database name
-        'USER': 'cmvp_db_hv2b_user',  # Database username
-        'PASSWORD': 's8yGGMANsQMK0JSk3UKAzrlkfR1CUwV7',  # Database password
-        'HOST': 'dpg-cti39llumphs73fodp60-a.oregon-postgres.render.com',  # Database host
+        'NAME': 'cmvp_db_3uiw',  # Database name
+        'USER': 'cmvp_db_3uiw_user',  # Username
+        'PASSWORD': 'c96clRXrFaVIs2CRiQ1P7Ld64B9nv2rf',  # Password
+        'HOST': 'dpg-ctil13tumphs73f3v440-a.oregon-postgres.render.com',  # Hostname
         'PORT': '5432',  # Default PostgreSQL port
     }
 }

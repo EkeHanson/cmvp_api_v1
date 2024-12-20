@@ -1,10 +1,10 @@
-from .views import RegisterView, OrganizationView, LoginView, send_contact_email, ResetPasswordView, ConfirmResetPasswordView
+from .views import  OrganizationView, LoginView, send_contact_email, ResetPasswordView, ConfirmResetPasswordView
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 
 router = DefaultRouter()
-router.register(r'users', RegisterView)
+# router.register(r'users', RegisterView)
 router.register(r'organization', OrganizationView)
 
 

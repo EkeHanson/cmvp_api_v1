@@ -16,6 +16,7 @@ class CertificateVerificationByOrganizationView(generics.GenericAPIView):
     Accepts certificate ID, issue date, and organization unique_subscriber_id.
     """
     permission_classes = [AllowAny]
+    serializer_class = VerificationSerializer  # Add this line to avoid the error
 
     def post(self, request, unique_subscriber_id, *args, **kwargs):
         certificate_id = request.data.get('certificate_id')

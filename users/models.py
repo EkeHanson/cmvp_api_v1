@@ -4,16 +4,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
 
 
-class Organization(models.Model):
-    name = models.CharField(max_length=255)
-    logo = models.ImageField(upload_to='organization_logos/', null=True, blank=True)
-    unique_subscriber_id = models.CharField(
-        max_length=50, 
-        unique=True, 
-        default=uuid.uuid4  # Automatically generate a unique UUID
-    )
-
-
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password, phone, **extra_fields):
         if not email:
@@ -33,25 +23,35 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class CustomUser(AbstractBaseUser):
-    first_name = models.CharField(max_length=225, blank=True, null=True)
-    last_name = models.CharField(max_length=225, blank=True, null=True)
-    phone = models.CharField(max_length=15)
-    address = models.CharField(max_length=225)
-    company_name = models.CharField(max_length=225, blank=True, null=True)
-    email = models.EmailField(max_length=80, unique=True)
-    company_logo = models.ImageField(upload_to='organization_logos/', null=True, blank=True)
+class Organization(AbstractBaseUser):
+
+    name = models.CharField(max_length=255)
+    logo = models.ImageField(upload_to='organization_logos/', null=True, blank=True)
     unique_subscriber_id = models.CharField(
         max_length=50, 
         unique=True, 
         default=uuid.uuid4  # Automatically generate a unique UUID
     )
 
+
+
+    # first_name = models.CharField(max_length=225, blank=True, null=True)
+    # last_name = models.CharField(max_length=225, blank=True, null=True)
+
+    phone = models.CharField(max_length=15)
+    address = models.CharField(max_length=225)
+
+
+    email = models.EmailField(max_length=80, unique=True)
+
+
+
     ROLE_CHOICES = (
         ('general', 'General User'),
         ('sub_admin', 'Sub Admin'),
         ('super_admin', 'Super Admin'),
     )
+
     role = models.CharField(max_length=15, choices=ROLE_CHOICES, default='general')
 
     is_active = models.BooleanField(default=True)
@@ -66,18 +66,3 @@ class CustomUser(AbstractBaseUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone']
 
-    def __str__(self):
-        return self.email
-
-    # Add these methods for permission checks
-    def has_perm(self, perm, obj=None):
-        return self.is_superuser
-
-    def has_module_perms(self, app_label):
-        return self.is_superuser
-
-    def get_full_name(self):
-        return f"{self.first_name} {self.last_name}"
-
-    def get_short_name(self):
-        return self.first_name

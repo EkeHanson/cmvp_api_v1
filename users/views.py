@@ -3,10 +3,9 @@ from django.core.mail import send_mail
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from .models import CustomUser, Organization
-from .serializers import UserRegistrationSerializer, LoginSerializer, OrganizationSerializer
+from .models import Organization
+from .serializers import  LoginSerializer, OrganizationSerializer
 from rest_framework.permissions import AllowAny
-from django.conf import settings
 from .serializers import LoginSerializer
 from rest_framework.response import Response
 from .serializers import  ResetPasswordSerializer
@@ -21,23 +20,6 @@ class OrganizationView(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     queryset = Organization.objects.all().order_by('id')
     serializer_class = OrganizationSerializer
-
-class RegisterView(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
-    queryset = CustomUser.objects.all().order_by('id')  # Specify the ordering here
-    serializer_class = UserRegistrationSerializer
-
-    # def partial_update(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance, data=request.data, partial=True)
-
-    #     if not serializer.is_valid():
-    #         # Log the specific errors for debugging
-    #         print(f"PATCH request errors: {serializer.errors}")
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    #     self.perform_update(serializer)
-    #     return Response(serializer.data)
 
 
 class LoginView(generics.GenericAPIView):
@@ -61,13 +43,14 @@ class LoginView(generics.GenericAPIView):
                 'access': str(refresh.access_token),
                 'email': user.email,
                 'userId': user.id,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
+                'name': user.name,
+                'phone': user.phone,
+                'address': user.address,
+                'unique_subscriber_id': user.unique_subscriber_id,
                 'date_joined': user.date_joined,
             }, status=status.HTTP_200_OK)
 
         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
 
 
 class ResetPasswordView(views.APIView):
@@ -82,8 +65,8 @@ class ResetPasswordView(views.APIView):
 
         # Find user with provided email
         try:
-            user = CustomUser.objects.get(email=email)
-        except CustomUser.DoesNotExist:
+            user = Organization.objects.get(email=email)
+        except Organization.DoesNotExist:
             return Response({'error': 'User with this email does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         # Generate reset token and UID
@@ -128,8 +111,8 @@ class ConfirmResetPasswordView(views.APIView):
 
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
-            user = CustomUser.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+            user = Organization.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, Organization.DoesNotExist):
             user = None
 
         if user is not None and default_token_generator.check_token(user, token):
