@@ -15,7 +15,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth import get_user_model
+from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
+
 
 class GetOrganizationBySubscriberIdView(APIView):
     """
@@ -33,34 +35,25 @@ class OrganizationView(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     queryset = Organization.objects.all().order_by('id')
     serializer_class = OrganizationSerializer
-    
-    # def create(self, request, *args, **kwargs):
-    #     """Handle POST requests with detailed error logging."""
-    #     serializer = self.get_serializer(data=request.data)
-    #     if not serializer.is_valid():
-    #         # Log and print the errors
 
+    def partial_update(self, request, *args, **kwargs):
+        unique_subscriber_id = kwargs.get('unique_subscriber_id')
+        organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
 
-    #         error_message = f"POST request errors: {serializer.errors}"
-    #         print(error_message)  # Print to console
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    #     self.perform_create(serializer)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    # def partial_update(self, request, *args, **kwargs):
-    #     """Handle PATCH requests with detailed error logging."""
-    #     partial = kwargs.pop('partial', True)
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance, data=request.data, partial=partial)
-    #     if not serializer.is_valid():
-    #         # Log and print the errors
-    #         error_message = f"PATCH request errors: {serializer.errors}"
-    #         print(error_message)  # Print to console
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Validate and update the organization object using the serializer
+        serializer = self.get_serializer(organization, data=request.data, partial=True)
         
-    #     self.perform_update(serializer)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+        if serializer.is_valid():
+            serializer.save()  # Save the updated data
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        print("serializer.errors")
+        print(serializer.errors)
+        print(serializer.data)
+        print("serializer.errors")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 class LoginView(generics.GenericAPIView):

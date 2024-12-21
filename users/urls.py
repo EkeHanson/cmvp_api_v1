@@ -16,6 +16,8 @@ urlpatterns = [
     path('password-reset/', ResetPasswordView.as_view(), name='password-reset-request'),
     path('reset-password/<uidb64>/<token>/', ConfirmResetPasswordView.as_view(), name='reset-password'),
     path('organizations/<str:unique_subscriber_id>/', GetOrganizationBySubscriberIdView.as_view(), name='organization-by-subscriber-id'),
+
+    path('organizations/<str:unique_subscriber_id>/update-by-subscriber-id/', OrganizationView.as_view({'patch': 'partial_update'}), name='organization-update-by-subscriber-id'),
 ]
 
 

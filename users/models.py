@@ -36,6 +36,17 @@ class Organization(AbstractBaseUser):
     address = models.CharField(max_length=225)
     email = models.EmailField(max_length=80, unique=True)
 
+    contact_first_name= models.CharField(max_length=255, null=True, blank=True)
+    contact_last_name= models.CharField(max_length=255, null=True, blank=True)
+    contact_telephone= models.CharField(max_length=255, null=True, blank=True)
+    business_type= models.CharField(max_length=255, null=True, blank=True)
+    registration_number= models.CharField(max_length=255, null=True, blank=True)
+    staff_number= models.CharField(max_length=255, null=True, blank=True)
+    nationality= models.CharField(max_length=255, null=True, blank=True)
+    state= models.CharField(max_length=255, null=True, blank=True)
+    year_incorporated= models.DateTimeField(max_length=255, null=True, blank=True)
+
+
     ROLE_CHOICES = (
         ('general', 'General User'),
         ('sub_admin', 'Sub Admin'),
