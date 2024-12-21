@@ -70,7 +70,8 @@ class LoginView(generics.GenericAPIView):
             if user.check_password(password):
                 # print(f"User found: {user.email}")
                 refresh = RefreshToken.for_user(user)
-
+                
+         
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
@@ -79,6 +80,7 @@ class LoginView(generics.GenericAPIView):
                     'name': user.name,
                     'phone': user.phone,
                     'address': user.address,
+                    # 'logo_url': user.logo,
                     'unique_subscriber_id': user.unique_subscriber_id,
                     'date_joined': user.date_joined,
                 }, status=status.HTTP_200_OK)

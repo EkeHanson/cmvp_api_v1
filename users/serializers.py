@@ -80,13 +80,13 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
-    def validate(self, data):
-        # Make sure validation logic is correct
-        email = data.get("email")
-        password = data.get("password")
-        print(email)
-        print(password)
-        return data
+    # def validate(self, data):
+    #     # Make sure validation logic is correct
+    #     email = data.get("email")
+    #     password = data.get("password")
+    #     # print(email)
+    #     # print(password)
+    #     return data
 
     
 
