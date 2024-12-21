@@ -1,4 +1,4 @@
-from .views import  OrganizationView, LoginView, send_contact_email, ResetPasswordView, ConfirmResetPasswordView
+from .views import  OrganizationView, LoginView, send_contact_email, ResetPasswordView, ConfirmResetPasswordView, GetOrganizationBySubscriberIdView
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
@@ -15,6 +15,7 @@ urlpatterns = [
     path('send-contact-email/', send_contact_email, name='send_contact_email'),
     path('password-reset/', ResetPasswordView.as_view(), name='password-reset-request'),
     path('reset-password/<uidb64>/<token>/', ConfirmResetPasswordView.as_view(), name='reset-password'),
+    path('organizations/<str:unique_subscriber_id>/', GetOrganizationBySubscriberIdView.as_view(), name='organization-by-subscriber-id'),
 ]
 
 

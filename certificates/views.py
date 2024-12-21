@@ -7,8 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from users.models import Organization
 from datetime import datetime
-
 from django.shortcuts import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 
 
 class CertificatesByOrganizationView(generics.ListAPIView):
@@ -17,6 +17,7 @@ class CertificatesByOrganizationView(generics.ListAPIView):
     """
     serializer_class = CertificateSerializer
     permission_classes = [AllowAny]
+    pagination_class = PageNumberPagination  # Add pagination class
 
     def get_queryset(self):
         unique_subscriber_id = self.kwargs.get('unique_subscriber_id')
@@ -25,8 +26,13 @@ class CertificatesByOrganizationView(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)  # Use pagination
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)  # Return paginated response
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 
