@@ -10,6 +10,26 @@ from datetime import datetime
 
 from django.shortcuts import get_object_or_404
 
+
+class CertificatesByOrganizationView(generics.ListAPIView):
+    """
+    View to fetch all certificates associated with an organization by unique_subscriber_id.
+    """
+    serializer_class = CertificateSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        unique_subscriber_id = self.kwargs.get('unique_subscriber_id')
+        organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+        return Certificate.objects.filter(organization=organization, deleted=False).order_by('certificate_id')
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
 class CertificateVerificationByOrganizationView(generics.GenericAPIView):
     """
     View for verifying a certificate with organization-specific validation.

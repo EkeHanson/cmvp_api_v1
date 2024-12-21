@@ -1,9 +1,5 @@
 from rest_framework import serializers
 from .models import Certificate, VerificationLog
-
-
-
-
 from rest_framework import serializers
 from .models import Certificate
 

@@ -78,7 +78,16 @@ class OrganizationSerializer(serializers.ModelSerializer):
     
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField()
+
+    def validate(self, data):
+        # Make sure validation logic is correct
+        email = data.get("email")
+        password = data.get("password")
+        print(email)
+        print(password)
+        return data
+
     
 
 class ResetPasswordSerializer(serializers.Serializer):

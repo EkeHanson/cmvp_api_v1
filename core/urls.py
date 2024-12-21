@@ -20,7 +20,7 @@ urlpatterns = [
 
     path('api/accounts/auth/', include('users.urls')), 
     path('api/certificates/', include('certificates.urls')),
-    path('api/analytics/', include('analytics.urls')),
+    #path('api/analytics/', include('analytics.urls')),
     path('admin/', admin.site.urls),
 ]
 if settings.DEBUG:

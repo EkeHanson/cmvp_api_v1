@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     #Second Party Apps
     'users',        # Make sure this is included
     'certificates',  # Make sure this is included
-    'analytics',     # Make sure this is included
+    # 'analytics',     # Make sure this is included
 
     'corsheaders',
     'rest_framework',
@@ -56,16 +56,19 @@ ROOT_URLCONF = 'core.urls'
 AUTH_USER_MODEL = 'users.Organization'
 
 # Configure CORS
+# Enable CORS headers for specified origins
 CORS_ALLOWED_ORIGINS = [
-    "https://simul-website.vercel.app", 
-    "https://new-cmvp-site.vercel.app", 
-     "http://localhost:3000" # Add your frontend's origin here
-    # Add any other origins you want to allow
+    "http://localhost:3000",  # Frontend during local development
+    "https://simul-website.vercel.app",  # Production frontend
+    "https://new-cmvp-site.vercel.app"   # Any other frontend
 ]
 
-# Optional: Allow all origins (for development only)
+# Allow credentials if necessary
+CORS_ALLOW_CREDENTIALS = True
 
+# Allow all origins for development (use only if you trust all origins)
 # CORS_ALLOW_ALL_ORIGINS = True
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -123,15 +126,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-
-
 
 DATABASES = {
     'default': {

@@ -14,12 +14,41 @@ from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
+from django.contrib.auth import get_user_model
 
 
 class OrganizationView(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     queryset = Organization.objects.all().order_by('id')
     serializer_class = OrganizationSerializer
+    
+    # def create(self, request, *args, **kwargs):
+    #     """Handle POST requests with detailed error logging."""
+    #     serializer = self.get_serializer(data=request.data)
+    #     if not serializer.is_valid():
+    #         # Log and print the errors
+
+
+    #         error_message = f"POST request errors: {serializer.errors}"
+    #         print(error_message)  # Print to console
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    #     self.perform_create(serializer)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    # def partial_update(self, request, *args, **kwargs):
+    #     """Handle PATCH requests with detailed error logging."""
+    #     partial = kwargs.pop('partial', True)
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(instance, data=request.data, partial=partial)
+    #     if not serializer.is_valid():
+    #         # Log and print the errors
+    #         error_message = f"PATCH request errors: {serializer.errors}"
+    #         print(error_message)  # Print to console
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    #     self.perform_update(serializer)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class LoginView(generics.GenericAPIView):
@@ -33,24 +62,66 @@ class LoginView(generics.GenericAPIView):
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
 
-        user = authenticate(request, email=email, password=password)
+        # print(f"Login attempt: email={email}, password={password}")
 
-        if user is not None:
-            refresh = RefreshToken.for_user(user)
+        # Custom authentication using email
+        try:
+            user = get_user_model().objects.get(email=email)
+            if user.check_password(password):
+                # print(f"User found: {user.email}")
+                refresh = RefreshToken.for_user(user)
 
-            return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                'email': user.email,
-                'userId': user.id,
-                'name': user.name,
-                'phone': user.phone,
-                'address': user.address,
-                'unique_subscriber_id': user.unique_subscriber_id,
-                'date_joined': user.date_joined,
-            }, status=status.HTTP_200_OK)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    'email': user.email,
+                    'userId': user.id,
+                    'name': user.name,
+                    'phone': user.phone,
+                    'address': user.address,
+                    'unique_subscriber_id': user.unique_subscriber_id,
+                    'date_joined': user.date_joined,
+                }, status=status.HTTP_200_OK)
+            else:
+                # print("Authentication failed: Incorrect password")
+                return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        except get_user_model().DoesNotExist:
+            # print("Authentication failed: User does not exist")
+            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+# class LoginView(generics.GenericAPIView):
+#     serializer_class = LoginSerializer
+#     permission_classes = [AllowAny]
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         email = serializer.validated_data['email']
+#         password = serializer.validated_data['password']
+
+#         print(f"Login attempt: email={email}, password={password}")
+
+#         user = authenticate(request, email=email, password=password)
+
+#         if user is not None:
+#             print(f"User found: {user.email}")
+#             refresh = RefreshToken.for_user(user)
+
+#             return Response({
+#                 'refresh': str(refresh),
+#                 'access': str(refresh.access_token),
+#                 'email': user.email,
+#                 'userId': user.id,
+#                 'name': user.name,
+#                 'phone': user.phone,
+#                 'address': user.address,
+#                 'unique_subscriber_id': user.unique_subscriber_id,
+#                 'date_joined': user.date_joined,
+#             }, status=status.HTTP_200_OK)
+        
+#         print("Authentication failed")
+#         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ResetPasswordView(views.APIView):

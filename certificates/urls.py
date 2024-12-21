@@ -5,7 +5,8 @@ from .views import (
     CertificateVerificationByOrganizationView,
     SoftDeletedCertificateView,
     CertificateSoftDeleteView,
-    CertificateRestoreView
+    CertificateRestoreView,
+    CertificatesByOrganizationView
 )
 
 router = DefaultRouter()
@@ -17,4 +18,6 @@ urlpatterns = [
     path('<str:certificate_id>/delete/', CertificateSoftDeleteView.as_view(), name='soft_delete_certificate'),
     path('<str:certificate_id>/restore/', CertificateRestoreView.as_view(), name='restore_certificate'),
     path('verify-certificate/<str:unique_subscriber_id>/', CertificateVerificationByOrganizationView.as_view(), name='verify-certificate-by-org'),
+    path('organization/<str:unique_subscriber_id>/', CertificatesByOrganizationView.as_view(), name='certificates-by-organization'
+    )
 ]
