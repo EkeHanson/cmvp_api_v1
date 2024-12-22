@@ -15,7 +15,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth import get_user_model
-from rest_framework.decorators import action
+from datetime import datetime
 from django.shortcuts import get_object_or_404
 
 
@@ -47,10 +47,9 @@ class OrganizationView(viewsets.ModelViewSet):
             serializer.save()  # Save the updated data
             return Response(serializer.data, status=status.HTTP_200_OK)
         
-        print("serializer.errors")
-        print(serializer.errors)
-        print(serializer.data)
-        print("serializer.errors")
+        # print("serializer.errors")
+        # print(serializer.data)
+        # print("serializer.errors")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -75,6 +74,7 @@ class LoginView(generics.GenericAPIView):
             if user.check_password(password):
                 # print(f"User found: {user.email}")
                 refresh = RefreshToken.for_user(user)
+                login_time = datetime.now()
                 
          
                 return Response({
@@ -85,7 +85,7 @@ class LoginView(generics.GenericAPIView):
                     'name': user.name,
                     'phone': user.phone,
                     'address': user.address,
-                    # 'logo_url': user.logo,
+                    'login_time': login_time.strftime('%I:%M %p'),  # Format time
                     'unique_subscriber_id': user.unique_subscriber_id,
                     'date_joined': user.date_joined,
                 }, status=status.HTTP_200_OK)

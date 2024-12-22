@@ -113,16 +113,38 @@ class CertificateVerificationByOrganizationView(generics.GenericAPIView):
         )
 
 
+# class SoftDeletedCertificateView(generics.ListAPIView):
+#     queryset = Certificate.objects.filter(deleted=True).order_by('certificate_id')  # Order by certificate_id (or another field)
+#     serializer_class = CertificateSerializer
+#     permission_classes = [AllowAny]  # Adjust permission as required
+
+#     def get(self, request, *args, **kwargs):
+#         certificates = self.get_queryset()
+#         serializer = self.get_serializer(certificates, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+    
 class SoftDeletedCertificateView(generics.ListAPIView):
-    queryset = Certificate.objects.filter(deleted=True).order_by('certificate_id')  # Order by certificate_id (or another field)
+    """
+    View to fetch soft-deleted certificates associated with an organization by unique_subscriber_id.
+    """
     serializer_class = CertificateSerializer
-    permission_classes = [AllowAny]  # Adjust permission as required
+    permission_classes = [AllowAny]
+    pagination_class = PageNumberPagination  # Add pagination if necessary
+
+    def get_queryset(self):
+        unique_subscriber_id = self.kwargs.get('unique_subscriber_id')
+        organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+        return Certificate.objects.filter(organization=organization, deleted=True).order_by('certificate_id')
 
     def get(self, request, *args, **kwargs):
-        certificates = self.get_queryset()
-        serializer = self.get_serializer(certificates, many=True)
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)  # Handle pagination
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 
 class CertificateCreateView(viewsets.ModelViewSet):
     queryset = Certificate.objects.filter(deleted=False).order_by('id')
