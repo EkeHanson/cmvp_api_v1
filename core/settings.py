@@ -126,6 +126,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
@@ -133,14 +134,18 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvp_db_3uiw',  # Database name
-        'USER': 'cmvp_db_3uiw_user',  # Username
-        'PASSWORD': 'c96clRXrFaVIs2CRiQ1P7Ld64B9nv2rf',  # Password
-        'HOST': 'dpg-ctil13tumphs73f3v440-a.oregon-postgres.render.com',  # Hostname
+        'NAME': 'cmvp_db_fi91',  # Database name
+        'USER': 'cmvp_db_fi91_user',  # Database user
+        'PASSWORD': 'GdgjW5rpe2cJDDW1qelL1YYBBrU277bU',  # Database password
+        'HOST': 'dpg-ctle91rv2p9s738fo0i0-a.oregon-postgres.render.com',  # Database host
         'PORT': '5432',  # Default PostgreSQL port
+        'OPTIONS': {
+            'sslmode': 'require',  # Enforce SSL connection for security
+        },
     }
 }
 

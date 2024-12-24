@@ -17,6 +17,7 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth import get_user_model
 from datetime import datetime
 from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail
 
 
 class GetOrganizationBySubscriberIdView(APIView):
@@ -52,8 +53,49 @@ class OrganizationView(viewsets.ModelViewSet):
         # print("serializer.errors")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def create(self, request, *args, **kwargs):
+        # Validate and save the new organization
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            organization = serializer.save()  # Save the organization object
 
+            # Send confirmation email
+            company_email = organization.email  # Assuming the model has an 'email' field
+            company_name = organization.name  # Assuming the model has a 'name' field
+            if company_name:
+                subject = "Account Registration Successful"
+                message = f"""
+                <html>
+                <body>
+                    <h3>Welcome to CMVP, {company_name}!</h3>
+                    <p>Your account has been successfully created. Please confirm your email address by clicking the link below:</p>
+                    <a href="https://new-cmvp-site.vercel.app?email={company_email}">Confirm Email</a>
+                    <p>Thank you for registering with us!</p>
+                </body>
+                </html>
+                """
+                from_email = "ekenehanson@sterlingspecialisthospitals.com"
+                recipient_list = [company_email]
 
+                send_mail(
+                    subject,
+                    '',
+                    from_email,
+                    recipient_list,
+                    fail_silently=False,
+                    html_message=message,
+                )
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        print("serializer.errors")
+        print(serializer.data)
+        print("serializer.errors")
+        print(serializer.errors)
+        print("serializer.errors")
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
@@ -96,41 +138,6 @@ class LoginView(generics.GenericAPIView):
             # print("Authentication failed: User does not exist")
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-# class LoginView(generics.GenericAPIView):
-#     serializer_class = LoginSerializer
-#     permission_classes = [AllowAny]
-
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         email = serializer.validated_data['email']
-#         password = serializer.validated_data['password']
-
-#         print(f"Login attempt: email={email}, password={password}")
-
-#         user = authenticate(request, email=email, password=password)
-
-#         if user is not None:
-#             print(f"User found: {user.email}")
-#             refresh = RefreshToken.for_user(user)
-
-#             return Response({
-#                 'refresh': str(refresh),
-#                 'access': str(refresh.access_token),
-#                 'email': user.email,
-#                 'userId': user.id,
-#                 'name': user.name,
-#                 'phone': user.phone,
-#                 'address': user.address,
-#                 'unique_subscriber_id': user.unique_subscriber_id,
-#                 'date_joined': user.date_joined,
-#             }, status=status.HTTP_200_OK)
-        
-#         print("Authentication failed")
-#         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
 class ResetPasswordView(views.APIView):
     permission_classes = [AllowAny]
 
@@ -150,7 +157,7 @@ class ResetPasswordView(views.APIView):
         # Generate reset token and UID
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        reset_link = f"https://https://new-cmvp-site.vercel.app/forgotten_pass_reset/{uid}/{token}/"
+        reset_link = f"https://new-cmvp-site.vercel.app/forgotten_pass_reset/{uid}/{token}/"
 
         # Prepare email content
         subject = 'Password Reset Request'
@@ -182,9 +189,10 @@ class ConfirmResetPasswordView(views.APIView):
 
         serializer = ResetPasswordSerializer(data=request.data)
 
-        # Validate the serializer
+        # print(request.data)
+
         if not serializer.is_valid():
-            # print(serializer.errors)
+            print(serializer.errors)  # Log the exact errors
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
