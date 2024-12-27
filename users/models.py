@@ -36,6 +36,8 @@ class Organization(AbstractBaseUser):
     address = models.CharField(max_length=225)
     email = models.EmailField(max_length=80, unique=True)
 
+    num_certificates_uploaded = models.PositiveIntegerField(default=0)  # New field to track uploaded certificates
+
     contact_first_name= models.CharField(max_length=255, null=True, blank=True)
     contact_last_name= models.CharField(max_length=255, null=True, blank=True)
     contact_telephone= models.CharField(max_length=255, null=True, blank=True)

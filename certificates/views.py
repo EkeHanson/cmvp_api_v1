@@ -160,7 +160,7 @@ class CertificateCreateView(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
-        print(f"Serializer errors: {serializer.errors}")  # Logs serializer errors
+        #print(f"Serializer errors: {serializer.errors}")  # Logs serializer errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
