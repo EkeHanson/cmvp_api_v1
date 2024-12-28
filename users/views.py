@@ -218,9 +218,9 @@ class ConfirmResetPasswordView(views.APIView):
 def send_contact_email(request):
     if request.method == 'POST':
         email = request.data.get('email')
-        full_name = request.data.get('full_name')
-        phone_number = request.data.get('phone_number')
-        interest_service = request.data.get('interest_service')
+        full_name = request.data.get('fullName')
+        phone_number = request.data.get('phone')
+        interest_service = request.data.get('serviceInterest')
         message_body = request.data.get('message')
 
         if email:
@@ -237,8 +237,8 @@ def send_contact_email(request):
             </body>
             </html>
             '''
-            recipient_list = ['info@artstraining.co.uk', 'support@artstraining.co.uk', 'ekenhanson@gmail.com', 'Diana@adada.co.uk']
-            from_email = 'admin@artstraining.co.uk'
+            recipient_list = [ 'ekenehanson@gmail.com']
+            from_email = "ekenehanson@sterlingspecialisthospitals.com"
             send_mail(subject, '', from_email, recipient_list, fail_silently=False, html_message=message)
             return Response({'message': 'Email sent successfully'})
         else:
