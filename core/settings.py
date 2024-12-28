@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     #Second Party Apps
     'users',        # Make sure this is included
     'certificates',  # Make sure this is included
+    'subscription',  # Make sure this is included
     # 'analytics',     # Make sure this is included
 
     'corsheaders',
@@ -138,14 +139,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvp_db_fi91',  # Database name
-        'USER': 'cmvp_db_fi91_user',  # Database user
-        'PASSWORD': 'GdgjW5rpe2cJDDW1qelL1YYBBrU277bU',  # Database password
-        'HOST': 'dpg-ctle91rv2p9s738fo0i0-a.oregon-postgres.render.com',  # Database host
+        'NAME': 'cmvp_db_fet8',  # Database name
+        'USER': 'cmvp_db_fet8_user',  # Database user
+        'PASSWORD': 'lxp6044XIZ2RBRiMdNklyIM4IXTgBQyT',  # Database password
+        'HOST': 'dpg-cto1hktsvqrc73b5aejg-a.oregon-postgres.render.com',  # Database host
         'PORT': '5432',  # Default PostgreSQL port
         'OPTIONS': {
-            'sslmode': 'require',  # Enforce SSL connection for security
-        },
+            'sslmode': 'require'  # Ensure secure connection
+        }
     }
 }
 
