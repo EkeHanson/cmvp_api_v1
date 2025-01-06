@@ -136,20 +136,17 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # }
 
 
-
-
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'cmvp_db_hnst',
         'USER': 'cmvp_db_hnst_user',
         'PASSWORD': 'dex72wUxeVwY6E1sMG7K1ePelZqvPbHe',
         'HOST': 'dpg-cttpm5ggph6c738l254g-a.oregon-postgres.render.com',
         'PORT': '5432',  # Default PostgreSQL port
-        'OPTIONS': {
-            'sslmode': 'require'  # Ensure secure connection
-        }
     }
 }
+
 
 
 SIMPLE_JWT = {
@@ -167,7 +164,7 @@ SIMPLE_JWT = {
     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
 }
 
-# Password validation
+
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
