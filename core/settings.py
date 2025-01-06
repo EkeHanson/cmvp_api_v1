@@ -136,13 +136,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # }
 
 
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvp_db_fet8',  # Database name
-        'USER': 'cmvp_db_fet8_user',  # Database user
-        'PASSWORD': 'lxp6044XIZ2RBRiMdNklyIM4IXTgBQyT',  # Database password
-        'HOST': 'dpg-cto1hktsvqrc73b5aejg-a.oregon-postgres.render.com',  # Database host
+        'NAME': 'cmvp_db_hnst',
+        'USER': 'cmvp_db_hnst_user',
+        'PASSWORD': 'dex72wUxeVwY6E1sMG7K1ePelZqvPbHe',
+        'HOST': 'dpg-cttpm5ggph6c738l254g-a.oregon-postgres.render.com',
         'PORT': '5432',  # Default PostgreSQL port
         'OPTIONS': {
             'sslmode': 'require'  # Ensure secure connection
