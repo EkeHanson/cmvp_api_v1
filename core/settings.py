@@ -1,6 +1,10 @@
 from datetime import timedelta
 from pathlib import Path
 import os
+
+import logging
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -136,6 +140,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # }
 
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -143,10 +148,13 @@ DATABASES = {
         'USER': 'cmvp_db_hnst_user',
         'PASSWORD': 'dex72wUxeVwY6E1sMG7K1ePelZqvPbHe',
         'HOST': 'dpg-cttpm5ggph6c738l254g-a.oregon-postgres.render.com',
-        'PORT': '5432',  # Default PostgreSQL port
+        'PORT': '5432',
+        'OPTIONS': {
+            'connect_timeout': 10,  # Increase this value if needed
+            'sslmode': 'require'  # Ensure secure connection
+        },
     }
 }
-
 
 
 SIMPLE_JWT = {
@@ -206,3 +214,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+logger = logging.getLogger('django.db.backends')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
