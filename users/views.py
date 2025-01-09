@@ -126,6 +126,7 @@ class LoginView(generics.GenericAPIView):
                     'email': user.email,
                     'userId': user.id,
                     'name': user.name,
+                    'user_role': user.role,
                     'phone': user.phone,
                     'address': user.address,
                     'login_time': login_time.strftime('%I:%M %p'),  # Format time

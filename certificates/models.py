@@ -4,6 +4,7 @@ from users.models import Organization
 class Certificate(models.Model):
     organization = models.ForeignKey(Organization,  on_delete=models.CASCADE, to_field='unique_subscriber_id')
     certificate_id = models.CharField(max_length=100, unique=True)
+
     certificate_title= models.CharField(max_length=255, null=True, blank=True)
 
     issuedBy= models.CharField(max_length=255, null=True, blank=True)

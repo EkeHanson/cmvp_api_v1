@@ -139,7 +139,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # }
 
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -154,6 +153,8 @@ DATABASES = {
         },
     }
 }
+
+#1234567890Proliance1234567890
 
 
 SIMPLE_JWT = {
