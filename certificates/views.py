@@ -1,11 +1,12 @@
 from rest_framework import generics, status, viewsets
 from .models import Certificate, VerificationLog
-from .serializers import CertificateSerializer, VerificationSerializer
+from .serializers import CertificateSerializer, VerificationSerializer, BackgroundImageSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from users.models import Organization
+from .models import BackgroundImage
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
@@ -202,3 +203,72 @@ class CertificateRestoreView(APIView):
             return Response({"status": "certificate restored"}, status=status.HTTP_200_OK)
         return Response({"error": "Certificate not found or not deleted"}, status=status.HTTP_404_NOT_FOUND)
 
+
+
+
+
+
+
+class BackgroundImageView(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
+    queryset = BackgroundImage.objects.all().order_by('id')
+    serializer_class = BackgroundImageSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        unique_subscriber_id = kwargs.get('unique_subscriber_id')
+        organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+
+        # Validate and update the organization object using the serializer
+        serializer = self.get_serializer(organization, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()  # Save the updated data
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        # print("serializer.errors")
+        # print(serializer.data)
+        # print("serializer.errors")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def create(self, request, *args, **kwargs):
+        # Validate and save the new organization
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            organization = serializer.save()  # Save the organization object
+
+            # Send confirmation email
+            company_email = organization.email  # Assuming the model has an 'email' field
+            company_name = organization.name  # Assuming the model has a 'name' field
+            # if company_name:
+            #     subject = "Account Registration Successful"
+            #     message = f"""
+            #     <html>
+            #     <body>
+            #         <h3>Welcome to CMVP, {company_name}!</h3>
+            #         <p>Your account has been successfully created. Please confirm your email address by clicking the link below:</p>
+            #         <a href="https://new-cmvp-site.vercel.app?email={company_email}">Confirm Email</a>
+            #         <p>Thank you for registering with us!</p>
+            #     </body>
+            #     </html>
+            #     """
+            #     from_email = "ekenehanson@sterlingspecialisthospitals.com"
+            #     recipient_list = [company_email]
+
+            #     send_mail(
+            #         subject,
+            #         '',
+            #         from_email,
+            #         recipient_list,
+            #         fail_silently=False,
+            #         html_message=message,
+            #     )
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        # print("serializer.errors")
+        # print(serializer.data)
+        # print("serializer.errors")
+        # print(serializer.errors)
+        # print("serializer.errors")
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

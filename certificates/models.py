@@ -30,3 +30,10 @@ class VerificationLog(models.Model):
     certificate = models.ForeignKey(Certificate, on_delete=models.CASCADE)
     verifier_ip = models.GenericIPAddressField()
     verification_date = models.DateTimeField(auto_now_add=True)
+
+
+
+
+class BackgroundImage(models.Model):
+    organization = models.ForeignKey(Organization,  on_delete=models.CASCADE, to_field='unique_subscriber_id')
+    backgroundImage = models.FileField(upload_to='certificates/')

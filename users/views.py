@@ -68,8 +68,8 @@ class OrganizationView(viewsets.ModelViewSet):
                 <html>
                 <body>
                     <h3>Welcome to CMVP, {company_name}!</h3>
-                    <p>Your account has been successfully created. Please confirm your email address by clicking the link below:</p>
-                    <a href="https://new-cmvp-site.vercel.app?email={company_email}">Confirm Email</a>
+                    <p> Your account has been successfully created. Please confirm your email address by clicking the link below:</p>
+                    <a href="https://new-cmvp-site.vercel.app/login?email={company_email}">Confirm Email</a>
                     <p>Thank you for registering with us!</p>
                 </body>
                 </html>
@@ -95,7 +95,6 @@ class OrganizationView(viewsets.ModelViewSet):
         # print("serializer.errors")
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 
 
 class LoginView(generics.GenericAPIView):
@@ -140,6 +139,7 @@ class LoginView(generics.GenericAPIView):
             # print("Authentication failed: User does not exist")
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
+
 class ResetPasswordView(views.APIView):
     permission_classes = [AllowAny]
 
@@ -183,6 +183,7 @@ class ResetPasswordView(views.APIView):
         send_mail(subject, message, from_email, recipient_list, fail_silently=False, html_message=html_message)
 
         return Response({'message': 'Password reset link has been sent to your email'}, status=status.HTTP_200_OK)
+
 
 class ConfirmResetPasswordView(views.APIView):
     permission_classes = [AllowAny]
