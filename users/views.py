@@ -51,7 +51,7 @@ class OrganizationView(viewsets.ModelViewSet):
         # print("serializer.errors")
         # print(serializer.data)
         # print("serializer.errors")
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, request, *args, **kwargs):
         # Validate and save the new organization
@@ -239,8 +239,9 @@ def send_contact_email(request):
             </body>
             </html>
             '''
-            recipient_list = [ 'ekenehanson@gmail.com']
-            from_email = "ekenehanson@sterlingspecialisthospitals.com"
+            recipient_list = [email]
+            # from_email = "support@cmvp.net"
+            from_email = "support@cmvp.net"
             send_mail(subject, '', from_email, recipient_list, fail_silently=False, html_message=message)
             return Response({'message': 'Email sent successfully'})
         else:

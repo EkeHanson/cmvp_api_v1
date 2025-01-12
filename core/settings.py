@@ -90,22 +90,24 @@ REST_FRAMEWORK = {
 # Email settings for Hostinger
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.hostinger.com'
-EMAIL_PORT = 465  # SSL port
-EMAIL_USE_SSL = True  # Use SSL for secure connection
-EMAIL_USE_TLS = False  # Ensure this is explicitly set to False
-EMAIL_HOST_USER = 'ekenehanson@sterlingspecialisthospitals.com'  # Your Hostinger email address
-EMAIL_HOST_PASSWORD = '123@Qwertyqwerty@123'  # Your Hostinger email password
-DEFAULT_FROM_EMAIL = 'ekenehanson@sterlingspecialisthospitals.com'  # Default sender email
+EMAIL_PORT = 465 
+EMAIL_USE_SSL = True 
+EMAIL_USE_TLS = False  
+EMAIL_HOST_USER = 'ekenehanson@sterlingspecialisthospitals.com' 
+EMAIL_HOST_PASSWORD = '123@Qwertyqwerty@123'
+DEFAULT_FROM_EMAIL = 'ekenehanson@sterlingspecialisthospitals.com'
 
 
-# Email configuration
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'  # Your SMTP server address
-# EMAIL_PORT = 587  # Your SMTP server port (587 is the default for SMTP with TLS)
-# EMAIL_USE_TLS = True  # Whether to use TLS (True by default)
-# EMAIL_HOST_USER = 'ekenehanson@gmail.com'  # Your email address
-# EMAIL_HOST_PASSWORD = 'pduw cpmw dgoq adrp'  # Your email password or app-specific password if using Gmail, etc.
-# DEFAULT_FROM_EMAIL = 'ekenehanson@gmail.com'  # The default email address to use for sending emails
+# EMAIL_HOST = 'smtp.neamcheap.com'
+# #EMAIL_PORT = 465  # SSL port
+# EMAIL_PORT = 587  # SSL port
+# EMAIL_USE_SSL = False  # Use SSL for secure connection
+# EMAIL_USE_TLS = True  # Ensure this is explicitly set to False
+# EMAIL_HOST_USER = 'support@cmvp.net'  # Your Hostinger email address
+# EMAIL_HOST_PASSWORD = 'Verify$&25Portal'  # Your Hostinger email password
+# DEFAULT_FROM_EMAIL = 'support@cmvp.net'  # Default sender email
+
 
 
 TEMPLATES = [
@@ -138,23 +140,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'cmvp_db_hnst',
-#         'USER': 'cmvp_db_hnst_user',
-#         'PASSWORD': 'dex72wUxeVwY6E1sMG7K1ePelZqvPbHe',
-#         'HOST': 'dpg-cttpm5ggph6c738l254g-a.oregon-postgres.render.com',
-#         'PORT': '5432',
-#         'OPTIONS': {
-#             'connect_timeout': 10,  # Increase this value if needed
-#             'sslmode': 'require'  # Ensure secure connection
-#         },
-#     }
-# }
-
-#1234567890Proliance1234567890
 
 
 DATABASES = {

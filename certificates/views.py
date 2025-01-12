@@ -147,6 +147,26 @@ class SoftDeletedCertificateView(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# class CertificateCreateView(viewsets.ModelViewSet):
+#     queryset = Certificate.objects.filter(deleted=False).order_by('id')
+#     serializer_class = CertificateSerializer
+#     permission_classes = [AllowAny]
+#     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+#     def create(self, request, *args, **kwargs):
+#         # print(f"POST request data: {request.data}")
+#         serializer = self.get_serializer(data=request.data)
+        
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+
+#         print(f"Serializer errors: {serializer.errors}")  # Logs serializer errors
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#         def partial_update(self, request, *args, **kwargs):
+
 class CertificateCreateView(viewsets.ModelViewSet):
     queryset = Certificate.objects.filter(deleted=False).order_by('id')
     serializer_class = CertificateSerializer
@@ -154,15 +174,34 @@ class CertificateCreateView(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
 
     def create(self, request, *args, **kwargs):
-        # print(f"POST request data: {request.data}")
         serializer = self.get_serializer(data=request.data)
         
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
+        # Log serializer errors
+        print(f"Serializer errors (POST): {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def partial_update(self, request, *args, **kwargs):
+        # Retrieve the object
+        partial = kwargs.pop('partial', True)
+        instance = self.get_object()
+        
+        # Validate the data
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
 
-        print(f"Serializer errors: {serializer.errors}")  # Logs serializer errors
+        # print("request.data")
+        # print(request.data)
+        # print("request.data")
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        
+        # Log serializer errors
+        print(f"Serializer errors (PATCH): {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -7,6 +7,9 @@ class Certificate(models.Model):
 
     certificate_title= models.CharField(max_length=255, null=True, blank=True)
 
+    examination_type= models.CharField(max_length=255, null=True, blank=True)
+    issuedNumber= models.CharField(max_length=255, null=True, blank=True)
+
     issuedBy= models.CharField(max_length=255, null=True, blank=True)
 
     client_name = models.CharField(max_length=255)
