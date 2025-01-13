@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
+from django.utils.timezone import now, timedelta
 
 class CustomUserManager(BaseUserManager):
 
@@ -35,6 +36,15 @@ class Organization(AbstractBaseUser):
     phone = models.CharField(max_length=15)
     address = models.CharField(max_length=225)
     email = models.EmailField(max_length=80, unique=True)
+
+    #30 DAY FREE TRIAL AFTER ACCOUNT CREATION FIELDS STARTS HERE
+
+    trial_start_date = models.DateTimeField(auto_now_add=True)
+    trial_end_date = models.DateTimeField(default=now() + timedelta(days=30))
+    is_subscribed = models.BooleanField(default=False)
+
+    
+    #30 DAY FREE TRIAL AFTER ACCOUNT CREATION FIELDS ENDS HERE
 
     num_certificates_uploaded = models.PositiveIntegerField(default=0)  # New field to track uploaded certificates
 

@@ -87,6 +87,7 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
         serializer.save(user=user, subscription_plan=subscription_plan)
 
 
+
 class UserSubscriptionDetailView(generics.RetrieveAPIView):
     queryset = UserSubscription.objects.all()
     serializer_class = UserSubscriptionDetailSerializer

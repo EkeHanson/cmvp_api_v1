@@ -51,11 +51,13 @@
 
 from rest_framework import serializers
 from .models import Organization
+from django.utils.timezone import now, timedelta
 
-    
 class OrganizationSerializer(serializers.ModelSerializer):
     role = serializers.CharField(default='sub_admin')
-    password = serializers.CharField(write_only=True)  # Ensure password is write-only
+    password = serializers.CharField(write_only=True)
+    # trial_start_date = serializers.DateTimeField(read_only=True)  # Read-only as it is set automatically
+    # trial_end_date = serializers.DateTimeField(read_only=True)  # Read-only as it is set automatically
 
     class Meta:
         model = Organization
@@ -65,6 +67,10 @@ class OrganizationSerializer(serializers.ModelSerializer):
         # Remove the password from the validated data
         password = validated_data.pop('password')
         
+        # Set trial dates
+        validated_data['trial_start_date'] = now()
+        validated_data['trial_end_date'] = now() + timedelta(days=30)
+
         # Create the user without the password initially
         user = Organization(**validated_data)
         
@@ -75,20 +81,36 @@ class OrganizationSerializer(serializers.ModelSerializer):
         user.save()
         
         return user
+
+    
+# class OrganizationSerializer(serializers.ModelSerializer):
+#     role = serializers.CharField(default='sub_admin')
+#     password = serializers.CharField(write_only=True)  # Ensure password is write-only
+
+#     class Meta:
+#         model = Organization
+#         fields = "__all__"
+
+#     def create(self, validated_data):
+#         # Remove the password from the validated data
+#         password = validated_data.pop('password')
+        
+#         # Create the user without the password initially
+#         user = Organization(**validated_data)
+        
+#         # Hash the password using set_password
+#         user.set_password(password)
+        
+#         # Save the user instance
+#         user.save()
+        
+#         return user
     
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
-    # def validate(self, data):
-    #     # Make sure validation logic is correct
-    #     email = data.get("email")
-    #     password = data.get("password")
-    #     # print(email)
-    #     # print(password)
-    #     return data
 
-    
 
 class ResetPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(

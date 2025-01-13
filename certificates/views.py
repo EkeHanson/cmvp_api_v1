@@ -10,6 +10,17 @@ from .models import BackgroundImage
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import action
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+
+from django.db import models, transaction
+from rest_framework.response import Response
+from rest_framework import status, viewsets
+from django.utils import timezone
+from rest_framework.generics import get_object_or_404
+from .models import Certificate, Organization
+from .serializers import CertificateSerializer
 
 
 class CertificatesByOrganizationView(generics.ListAPIView):
@@ -114,15 +125,7 @@ class CertificateVerificationByOrganizationView(generics.GenericAPIView):
         )
 
 
-# class SoftDeletedCertificateView(generics.ListAPIView):
-#     queryset = Certificate.objects.filter(deleted=True).order_by('certificate_id')  # Order by certificate_id (or another field)
-#     serializer_class = CertificateSerializer
-#     permission_classes = [AllowAny]  # Adjust permission as required
 
-#     def get(self, request, *args, **kwargs):
-#         certificates = self.get_queryset()
-#         serializer = self.get_serializer(certificates, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class SoftDeletedCertificateView(generics.ListAPIView):
     """
@@ -147,78 +150,102 @@ class SoftDeletedCertificateView(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# class CertificateCreateView(viewsets.ModelViewSet):
-#     queryset = Certificate.objects.filter(deleted=False).order_by('id')
-#     serializer_class = CertificateSerializer
-#     permission_classes = [AllowAny]
-#     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
 
-#     def create(self, request, *args, **kwargs):
-#         # print(f"POST request data: {request.data}")
-#         serializer = self.get_serializer(data=request.data)
-        
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-
-#         print(f"Serializer errors: {serializer.errors}")  # Logs serializer errors
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-#         def partial_update(self, request, *args, **kwargs):
 
 class CertificateCreateView(viewsets.ModelViewSet):
     queryset = Certificate.objects.filter(deleted=False).order_by('id')
     serializer_class = CertificateSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]  # Consider changing to IsAuthenticated if necessary
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
 
     def create(self, request, *args, **kwargs):
+        unique_subscriber_id = request.data.get('organization')
+
+        if not unique_subscriber_id:
+            return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+
+        current_time = timezone.now()
+        if current_time > organization.trial_end_date and not organization.is_subscribed:
+            return Response({'error': 'Subscription is required to upload certificates after trial period.'}, status=status.HTTP_403_FORBIDDEN)
+
         serializer = self.get_serializer(data=request.data)
-        
         if serializer.is_valid():
-            serializer.save()
+            with transaction.atomic():
+                serializer.save()
+
+                # Increment num_certificates_uploaded field
+                organization.num_certificates_uploaded = models.F('num_certificates_uploaded') + 1
+                organization.save(update_fields=['num_certificates_uploaded'])
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        # Log serializer errors
-        print(f"Serializer errors (POST): {serializer.errors}")
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class CertificateCreateView(viewsets.ModelViewSet):
+#     queryset = Certificate.objects.filter(deleted=False).order_by('id')
+#     serializer_class = CertificateSerializer
+#     permission_classes = [AllowAny]  # Consider changing to IsAuthenticated if necessary
+#     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+#     def create(self, request, *args, **kwargs):
+#         # Get the organization unique_subscriber_id from the request data
+#         unique_subscriber_id = request.data.get('organization')
+
+#         if not unique_subscriber_id:
+#             return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # Retrieve the organization instance using unique_subscriber_id
+#         organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+
+#         # Check if within trial period or subscribed
+#         current_time = timezone.now()
+#         if current_time > organization.trial_end_date and not organization.is_subscribed:
+
+#             # print("organization.trial_end_date")
+#             # print(organization.trial_end_date)
+#             # print("organization.trial_end_date")
+
+#             return Response({'error': 'Subscription is required to upload certificates after trial period.'},
+#                             status=status.HTTP_403_FORBIDDEN)
+
+#         # Proceed with normal creation if allowed
+#         serializer = self.get_serializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+
+#             # Increment num_certificates_uploaded field
+#             organization.num_certificates_uploaded = models.F('num_certificates_uploaded') + 1
+#             organization.save()
+
+
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#         # Log serializer errors
+#         print(f"Serializer errors (POST): {serializer.errors}")
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def partial_update(self, request, *args, **kwargs):
+#         # Retrieve the object
+#         partial = kwargs.pop('partial', True)
+#         instance = self.get_object()
+        
+#         # Validate the data
+#         serializer = self.get_serializer(instance, data=request.data, partial=partial)
+
+#         # print("request.data")
+#         # print(request.data)
+#         # print("request.data")
+        
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+        
+#         # Log serializer errors
+#         print(f"Serializer errors (PATCH): {serializer.errors}")
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def partial_update(self, request, *args, **kwargs):
-        # Retrieve the object
-        partial = kwargs.pop('partial', True)
-        instance = self.get_object()
-        
-        # Validate the data
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-
-        # print("request.data")
-        # print(request.data)
-        # print("request.data")
-        
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        
-        # Log serializer errors
-        print(f"Serializer errors (PATCH): {serializer.errors}")
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-# class CertificateVerificationView(generics.GenericAPIView):
-#     serializer_class = VerificationSerializer
-
-#     def post(self, request, *args, **kwargs):
-#         certificate_id = request.data.get('certificate_id')
-#         certificate = Certificate.objects.filter(certificate_id=certificate_id, deleted=False).first()  # Exclude deleted
-#         if certificate:
-#             VerificationLog.objects.create(certificate=certificate, verifier_ip=request.META.get('REMOTE_ADDR'))
-#             certificate.verification_count += 1
-#             certificate.save()
-#             return Response({"status": "valid"}, status=status.HTTP_200_OK)
-#         return Response({"status": "invalid"}, status=status.HTTP_404_NOT_FOUND)
-
 
 class CertificateSoftDeleteView(APIView):
     permission_classes = [AllowAny]
