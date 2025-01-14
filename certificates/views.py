@@ -1,3 +1,4 @@
+
 from rest_framework import generics, status, viewsets
 from .serializers import CertificateSerializer, VerificationSerializer, BackgroundImageSerializer
 from rest_framework.response import Response
@@ -5,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from users.models import Organization
+from subscription.models import UserSubscription
 from .models import BackgroundImage, Certificate, VerificationLog
 from datetime import datetime
 from django.shortcuts import get_object_or_404
@@ -15,6 +17,214 @@ from django.core.mail import send_mail
 from django.utils.timezone import now
 from django.db import models, transaction
 from django.utils import timezone
+from django.utils.timezone import now
+from django.db.models import Q
+
+class CertificateCreateView(viewsets.ModelViewSet):
+    queryset = Certificate.objects.filter(deleted=False).order_by('id')
+    serializer_class = CertificateSerializer
+    permission_classes = [AllowAny]  # Consider changing to IsAuthenticated if necessary
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+    def create(self, request, *args, **kwargs):
+        unique_subscriber_id = request.data.get('organization')
+
+        if not unique_subscriber_id:
+            return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+
+        current_time = now()
+        # Check if the trial period has ended and the organization is not subscribed
+        if current_time > organization.trial_end_date and not organization.is_subscribed:
+            return Response({'error': 'Subscription is required to upload certificates after trial period.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Check if there is an active subscription
+        active_subscription = UserSubscription.objects.filter(
+            user=organization,
+            end_date__gte=current_time.date()  # Ensures the subscription end date is not in the past
+        ).exists()
+
+        if not active_subscription:
+            return Response({'error': 'No active subscription. Please renew your subscription to upload certificates.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Continue with certificate creation if subscription is valid
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            with transaction.atomic():
+                serializer.save()
+
+                # Increment num_certificates_uploaded field
+                organization.num_certificates_uploaded = models.F('num_certificates_uploaded') + 1
+                organization.save(update_fields=['num_certificates_uploaded'])
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def partial_update(self, request, *args, **kwargs):
+        # Retrieve the certificate instance to be updated
+        certificate = self.get_object()
+        organization = certificate.organization
+        
+        # Store the previous values to compare them later
+        old_data = CertificateSerializer(certificate).data
+
+        # Validate and update the certificate instance
+        serializer = self.get_serializer(certificate, data=request.data, partial=True)
+        if serializer.is_valid():
+            # Save the updated certificate
+            updated_certificate = serializer.save()
+
+            # Send email notification if there are any changes
+            self.notify_organization_of_changes(organization, old_data, CertificateSerializer(updated_certificate).data)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def notify_organization_of_changes(self, organization, old_data, new_data):
+        """
+        Sends an email notification to the organization about the updated certificate details.
+        """
+        # Compare old and new data to find the changes
+        changes = []
+        for field, old_value in old_data.items():
+            new_value = new_data.get(field)
+            if old_value != new_value:
+                changes.append(f"{field.capitalize()}: {old_value} → {new_value}")
+
+        if changes:
+            subject = f"Certificate Updated: {new_data.get('certificate_id')}"
+            message = f"""
+            <html>
+            <body>
+                <h3>Hello {organization.name},</h3>
+                <p>The following certificate has been updated:</p>
+                <ul>
+                    <li><strong>Certificate ID:</strong> {new_data.get('certificate_id')}</li>
+                    <li><strong>Updated Fields:</strong></li>
+                    <ul>
+                        {"".join([f"<li>{change}</li>" for change in changes])}
+                    </ul>
+                </ul>
+                <p>If you did not request these changes, please contact support immediately.</p>
+                <p>Best regards,</p>
+                <p>cmvp Tech Support Team</p>
+            </body>
+            </html>
+            """
+            from_email = "ekenehanson@sterlingspecialisthospitals.com"  # Replace with your sender email
+            recipient_list = [organization.email]
+
+            send_mail(
+                subject,
+                '',
+                from_email,
+                recipient_list,
+                fail_silently=False,
+                html_message=message
+            )
+
+
+    
+
+# class CertificateCreateView(viewsets.ModelViewSet):
+#     queryset = Certificate.objects.filter(deleted=False).order_by('id')
+#     serializer_class = CertificateSerializer
+#     permission_classes = [AllowAny]  # Consider changing to IsAuthenticated if necessary
+#     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+#     def create(self, request, *args, **kwargs):
+#         unique_subscriber_id = request.data.get('organization')
+
+#         if not unique_subscriber_id:
+#             return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+
+#         current_time = timezone.now()
+#         if current_time > organization.trial_end_date and not organization.is_subscribed:
+#             return Response({'error': 'Subscription is required to upload certificates after trial period.'}, status=status.HTTP_403_FORBIDDEN)
+
+
+#         serializer = self.get_serializer(data=request.data)
+#         if serializer.is_valid():
+#             with transaction.atomic():
+#                 serializer.save()
+
+#                 # Increment num_certificates_uploaded field
+#                 organization.num_certificates_uploaded = models.F('num_certificates_uploaded') + 1
+#                 organization.save(update_fields=['num_certificates_uploaded'])
+
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#     def partial_update(self, request, *args, **kwargs):
+#         # Retrieve the certificate instance to be updated
+#         certificate = self.get_object()
+#         organization = certificate.organization
+        
+#         # Store the previous values to compare them later
+#         old_data = CertificateSerializer(certificate).data
+
+#         # Validate and update the certificate instance
+#         serializer = self.get_serializer(certificate, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             # Save the updated certificate
+#             updated_certificate = serializer.save()
+
+#             # Send email notification if there are any changes
+#             self.notify_organization_of_changes(organization, old_data, CertificateSerializer(updated_certificate).data)
+
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def notify_organization_of_changes(self, organization, old_data, new_data):
+#         """
+#         Sends an email notification to the organization about the updated certificate details.
+#         """
+#         # Compare old and new data to find the changes
+#         changes = []
+#         for field, old_value in old_data.items():
+#             new_value = new_data.get(field)
+#             if old_value != new_value:
+#                 changes.append(f"{field.capitalize()}: {old_value} → {new_value}")
+
+#         if changes:
+#             subject = f"Certificate Updated: {new_data.get('certificate_id')}"
+#             message = f"""
+#             <html>
+#             <body>
+#                 <h3>Hello {organization.name},</h3>
+#                 <p>The following certificate has been updated:</p>
+#                 <ul>
+#                     <li><strong>Certificate ID:</strong> {new_data.get('certificate_id')}</li>
+#                     <li><strong>Updated Fields:</strong></li>
+#                     <ul>
+#                         {"".join([f"<li>{change}</li>" for change in changes])}
+#                     </ul>
+#                 </ul>
+#                 <p>If you did not request these changes, please contact support immediately.</p>
+#                 <p>Best regards,</p>
+#                 <p>Your Support Team</p>
+#             </body>
+#             </html>
+#             """
+#             from_email = "ekenehanson@sterlingspecialisthospitals.com"  # Replace with your sender email
+#             recipient_list = [organization.email]
+
+#             send_mail(
+#                 subject,
+#                 '',
+#                 from_email,
+#                 recipient_list,
+#                 fail_silently=False,
+#                 html_message=message
+#             )
 
 
 class CertificatesByOrganizationView(generics.ListAPIView):
@@ -140,101 +350,101 @@ class SoftDeletedCertificateView(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CertificateCreateView(viewsets.ModelViewSet):
-    queryset = Certificate.objects.filter(deleted=False).order_by('id')
-    serializer_class = CertificateSerializer
-    permission_classes = [AllowAny]  # Consider changing to IsAuthenticated if necessary
-    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+# class CertificateCreateView(viewsets.ModelViewSet):
+#     queryset = Certificate.objects.filter(deleted=False).order_by('id')
+#     serializer_class = CertificateSerializer
+#     permission_classes = [AllowAny]  # Consider changing to IsAuthenticated if necessary
+#     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
 
-    def create(self, request, *args, **kwargs):
-        unique_subscriber_id = request.data.get('organization')
+#     def create(self, request, *args, **kwargs):
+#         unique_subscriber_id = request.data.get('organization')
 
-        if not unique_subscriber_id:
-            return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+#         if not unique_subscriber_id:
+#             return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+#         organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
 
-        current_time = timezone.now()
-        if current_time > organization.trial_end_date and not organization.is_subscribed:
-            return Response({'error': 'Subscription is required to upload certificates after trial period.'}, status=status.HTTP_403_FORBIDDEN)
+#         current_time = timezone.now()
+#         if current_time > organization.trial_end_date and not organization.is_subscribed:
+#             return Response({'error': 'Subscription is required to upload certificates after trial period.'}, status=status.HTTP_403_FORBIDDEN)
 
 
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            with transaction.atomic():
-                serializer.save()
+#         serializer = self.get_serializer(data=request.data)
+#         if serializer.is_valid():
+#             with transaction.atomic():
+#                 serializer.save()
 
-                # Increment num_certificates_uploaded field
-                organization.num_certificates_uploaded = models.F('num_certificates_uploaded') + 1
-                organization.save(update_fields=['num_certificates_uploaded'])
+#                 # Increment num_certificates_uploaded field
+#                 organization.num_certificates_uploaded = models.F('num_certificates_uploaded') + 1
+#                 organization.save(update_fields=['num_certificates_uploaded'])
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def partial_update(self, request, *args, **kwargs):
-        # Retrieve the certificate instance to be updated
-        certificate = self.get_object()
-        organization = certificate.organization
+#     def partial_update(self, request, *args, **kwargs):
+#         # Retrieve the certificate instance to be updated
+#         certificate = self.get_object()
+#         organization = certificate.organization
         
-        # Store the previous values to compare them later
-        old_data = CertificateSerializer(certificate).data
+#         # Store the previous values to compare them later
+#         old_data = CertificateSerializer(certificate).data
 
-        # Validate and update the certificate instance
-        serializer = self.get_serializer(certificate, data=request.data, partial=True)
-        if serializer.is_valid():
-            # Save the updated certificate
-            updated_certificate = serializer.save()
+#         # Validate and update the certificate instance
+#         serializer = self.get_serializer(certificate, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             # Save the updated certificate
+#             updated_certificate = serializer.save()
 
-            # Send email notification if there are any changes
-            self.notify_organization_of_changes(organization, old_data, CertificateSerializer(updated_certificate).data)
+#             # Send email notification if there are any changes
+#             self.notify_organization_of_changes(organization, old_data, CertificateSerializer(updated_certificate).data)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+#             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def notify_organization_of_changes(self, organization, old_data, new_data):
-        """
-        Sends an email notification to the organization about the updated certificate details.
-        """
-        # Compare old and new data to find the changes
-        changes = []
-        for field, old_value in old_data.items():
-            new_value = new_data.get(field)
-            if old_value != new_value:
-                changes.append(f"{field.capitalize()}: {old_value} → {new_value}")
+#     def notify_organization_of_changes(self, organization, old_data, new_data):
+#         """
+#         Sends an email notification to the organization about the updated certificate details.
+#         """
+#         # Compare old and new data to find the changes
+#         changes = []
+#         for field, old_value in old_data.items():
+#             new_value = new_data.get(field)
+#             if old_value != new_value:
+#                 changes.append(f"{field.capitalize()}: {old_value} → {new_value}")
 
-        if changes:
-            subject = f"Certificate Updated: {new_data.get('certificate_id')}"
-            message = f"""
-            <html>
-            <body>
-                <h3>Hello {organization.name},</h3>
-                <p>The following certificate has been updated:</p>
-                <ul>
-                    <li><strong>Certificate ID:</strong> {new_data.get('certificate_id')}</li>
-                    <li><strong>Updated Fields:</strong></li>
-                    <ul>
-                        {"".join([f"<li>{change}</li>" for change in changes])}
-                    </ul>
-                </ul>
-                <p>If you did not request these changes, please contact support immediately.</p>
-                <p>Best regards,</p>
-                <p>Your Support Team</p>
-            </body>
-            </html>
-            """
-            from_email = "ekenehanson@sterlingspecialisthospitals.com"  # Replace with your sender email
-            recipient_list = [organization.email]
+#         if changes:
+#             subject = f"Certificate Updated: {new_data.get('certificate_id')}"
+#             message = f"""
+#             <html>
+#             <body>
+#                 <h3>Hello {organization.name},</h3>
+#                 <p>The following certificate has been updated:</p>
+#                 <ul>
+#                     <li><strong>Certificate ID:</strong> {new_data.get('certificate_id')}</li>
+#                     <li><strong>Updated Fields:</strong></li>
+#                     <ul>
+#                         {"".join([f"<li>{change}</li>" for change in changes])}
+#                     </ul>
+#                 </ul>
+#                 <p>If you did not request these changes, please contact support immediately.</p>
+#                 <p>Best regards,</p>
+#                 <p>Your Support Team</p>
+#             </body>
+#             </html>
+#             """
+#             from_email = "ekenehanson@sterlingspecialisthospitals.com"  # Replace with your sender email
+#             recipient_list = [organization.email]
 
-            send_mail(
-                subject,
-                '',
-                from_email,
-                recipient_list,
-                fail_silently=False,
-                html_message=message
-            )
+#             send_mail(
+#                 subject,
+#                 '',
+#                 from_email,
+#                 recipient_list,
+#                 fail_silently=False,
+#                 html_message=message
+#             )
 
 
 class CertificateSoftDeleteView(APIView):

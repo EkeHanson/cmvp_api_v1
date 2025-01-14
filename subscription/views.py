@@ -135,7 +135,15 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
             print(error_message)
             return Response({'detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
+        # serializer.save(user=user, subscription_plan=subscription_plan)
+        # return Response(serializer.data, status=status.HTTP_201_CREATED)
+                # Save the new subscription
         serializer.save(user=user, subscription_plan=subscription_plan)
+
+        # Update the organization's is_subscribed field to True
+        user.is_subscribed = True
+        user.save()
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
