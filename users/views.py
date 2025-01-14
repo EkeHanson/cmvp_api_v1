@@ -97,6 +97,51 @@ class OrganizationView(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# class LoginView(generics.GenericAPIView):
+#     serializer_class = LoginSerializer
+#     permission_classes = [AllowAny]
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         email = serializer.validated_data['email']
+#         password = serializer.validated_data['password']
+
+#         # print(f"Login attempt: email={email}, password={password}")
+
+#         # Custom authentication using email
+#         try:
+#             user = get_user_model().objects.get(email=email)
+#             if user.check_password(password):
+#                 # print(f"User found: {user.email}")
+#                 refresh = RefreshToken.for_user(user)
+#                 login_time = datetime.now()
+                
+         
+#                 return Response({
+#                     'refresh': str(refresh),
+#                     'access': str(refresh.access_token),
+#                     'email': user.email,
+#                     'userId': user.id,
+#                     'name': user.name,
+#                     'user_role': user.role,
+#                     'phone': user.phone,
+#                     'address': user.address,
+#                     'login_time': login_time.strftime('%I:%M %p'),  # Format time
+#                     'unique_subscriber_id': user.unique_subscriber_id,
+#                     'date_joined': user.date_joined,
+#                 }, status=status.HTTP_200_OK)
+#             else:
+#                 # print("Authentication failed: Incorrect password")
+#                 return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+#         except get_user_model().DoesNotExist:
+#             # print("Authentication failed: User does not exist")
+#             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+from django.core.mail import send_mail
+from django.utils.timezone import now
+import re
+
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
@@ -108,17 +153,48 @@ class LoginView(generics.GenericAPIView):
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
 
-        # print(f"Login attempt: email={email}, password={password}")
-
-        # Custom authentication using email
         try:
             user = get_user_model().objects.get(email=email)
             if user.check_password(password):
-                # print(f"User found: {user.email}")
+                # Generate refresh token for the user
                 refresh = RefreshToken.for_user(user)
-                login_time = datetime.now()
-                
-         
+                login_time = now()
+
+                # Extract user-agent from request headers
+                user_agent = request.META.get('HTTP_USER_AGENT', '')
+                device_name, browser_name = self.extract_device_and_browser(user_agent)
+
+                # Send email notification of login
+                subject = "Login Notification"
+                message = f"""
+                <html>
+                <body>
+                    <h3>Hello {user.name},</h3>
+                    <p>This is a notification that your account with <strong>cmvp.net</strong> has been successfully logged into at {login_time.strftime('%I:%M %p')}.</p>
+                    <p><strong>Login Details:</strong></p>
+                    <ul>
+                        <li><strong>Login Time:</strong> {login_time.strftime('%I:%M %p')}</li>
+                        <li><strong>Device:</strong> {device_name}</li>
+                        <li><strong>Browser:</strong> {browser_name}</li>
+                    </ul>
+                    <p>If you did not initiate this login, please contact support immediately or recover your account with our forgotten password feature.</p>
+                    <p>Best regards,</p>
+                    <p>Your Support Team</p>
+                </body>
+                </html>
+                """
+                from_email = "ekenehanson@sterlingspecialisthospitals.com"  # Replace with your sender email
+                recipient_list = [user.email]
+
+                send_mail(
+                    subject,
+                    '',
+                    from_email,
+                    recipient_list,
+                    fail_silently=False,
+                    html_message=message
+                )
+
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
@@ -128,16 +204,49 @@ class LoginView(generics.GenericAPIView):
                     'user_role': user.role,
                     'phone': user.phone,
                     'address': user.address,
-                    'login_time': login_time.strftime('%I:%M %p'),  # Format time
+                    'login_time': login_time.strftime('%I:%M %p'),
                     'unique_subscriber_id': user.unique_subscriber_id,
                     'date_joined': user.date_joined,
                 }, status=status.HTTP_200_OK)
+
             else:
-                # print("Authentication failed: Incorrect password")
                 return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         except get_user_model().DoesNotExist:
-            # print("Authentication failed: User does not exist")
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def extract_device_and_browser(self, user_agent):
+        """
+        Extracts device name and browser name from the user-agent string.
+        """
+        device_name = "Unknown Device"
+        browser_name = "Unknown Browser"
+        
+        # Simple regex to extract browser name from the user-agent
+        browser_patterns = [
+            (r'Chrome/([0-9.]+)', 'Chrome'),
+            (r'Firefox/([0-9.]+)', 'Firefox'),
+            (r'Safari/([0-9.]+)', 'Safari'),
+            (r'Edge/([0-9.]+)', 'Edge'),
+            (r'Opera/([0-9.]+)', 'Opera'),
+            (r'MSIE ([0-9.]+)', 'Internet Explorer'),
+        ]
+
+        # Check if any browser pattern matches
+        for pattern, browser in browser_patterns:
+            match = re.search(pattern, user_agent)
+            if match:
+                browser_name = browser
+                break
+
+        # Device name (simplified method, can be enhanced with more patterns)
+        if "Mobile" in user_agent:
+            device_name = "Mobile Device"
+        elif "Tablet" in user_agent:
+            device_name = "Tablet"
+        else:
+            device_name = "Desktop"
+
+        return device_name, browser_name
 
 
 class ResetPasswordView(views.APIView):
