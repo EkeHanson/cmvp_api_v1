@@ -143,12 +143,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvp_db_105h',
-        'USER': 'cmvp_db_105h_user',
-        'PASSWORD': 'f4opFXGCPJYJHlbkcj66MKNOsAKJrs1B',
-        'HOST': 'dpg-cu13fnt2ng1s73e5ts20-a.oregon-postgres.render.com',
-        'PORT': '5432',  # Default PostgreSQL port
+        'ENGINE': 'django.db.backends.postgresql',  # Use PostgreSQL as the database engine
+        'NAME': 'cmvp_db_udji',                     # Database name
+        'USER': 'cmvp_db_udji_user',                # Database user
+        'PASSWORD': 'Tgv1wnG07oPUJAaAqOwCf09S3sbDZLXi',  # Database password
+        'HOST': 'dpg-cu3a78jtq21c73fr5g2g-a.oregon-postgres.render.com',  # Database host
+        'PORT': '5432',                             # Default PostgreSQL port
     }
 }
 
