@@ -422,3 +422,117 @@ class BackgroundImageView(viewsets.ModelViewSet):
         # print("serializer.errors")
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class BackgroundImageView(viewsets.ModelViewSet):
+#     permission_classes = [AllowAny]
+#     queryset = BackgroundImage.objects.all().order_by('id')
+#     serializer_class = BackgroundImageSerializer
+
+#     def partial_update(self, request, *args, **kwargs):
+#         unique_subscriber_id = kwargs.get('unique_subscriber_id')
+#         organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+
+#         serializer = self.get_serializer(organization, data=request.data, partial=True)
+        
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+
+#         # Format the error response
+#         error_message = {"error": serializer.errors}
+#         return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+
+#     def create(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#         error_message = {"error": serializer.errors}
+#         return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BackgroundImageByOrganizationView(generics.ListAPIView):
+    """
+    View to fetch all certificates associated with an organization by unique_subscriber_id.
+    """
+    serializer_class = BackgroundImageSerializer
+    permission_classes = [AllowAny]
+    #pagination_class = PageNumberPagination  # Add pagination class
+
+    def get_queryset(self):
+        unique_subscriber_id = self.kwargs.get('unique_subscriber_id')
+        organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+        return BackgroundImage.objects.filter(organization=organization).order_by('id')
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)  # Use pagination
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)  # Return paginated response
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+# class SetSelectedBackgroundImageView(APIView):
+#     """
+#     View to set a specific background image as the selected background for an organization.
+#     """
+#     def post(self, request, *args, **kwargs):
+#         permission_classes = [AllowAny]
+#         background_image_id = kwargs.get('id')
+#         background_image = get_object_or_404(BackgroundImage, id=background_image_id)
+        
+#         # Unselect all other background images for the organization
+#         BackgroundImage.objects.filter(organization=background_image.organization).update(is_selected=False)
+        
+#         # Set the selected background image
+#         background_image.is_selected = True
+#         background_image.save()
+
+#         return Response({"message": "Background image set as selected."}, status=status.HTTP_200_OK)
+
+class SetSelectedBackgroundImageView(APIView):
+    """
+    View to set a specific background image as the selected background for an organization.
+    """
+    permission_classes = [AllowAny]  # Require authentication
+
+    def post(self, request, *args, **kwargs):
+        background_image_id = kwargs.get('id')
+        background_image = get_object_or_404(BackgroundImage, id=background_image_id)
+        
+        # Unselect all other background images for the organization
+        BackgroundImage.objects.filter(organization=background_image.organization).update(is_selected=False)
+        
+        # Set the selected background image
+        background_image.is_selected = True
+        background_image.save()
+
+        return Response({"message": "Background image set as selected."}, status=status.HTTP_200_OK)
+
+
+
+
+class GetSelectedBackgroundImageView(APIView):
+    """
+    View to fetch the selected background image for an organization.
+    """
+    permission_classes = [AllowAny]  # Require authentication
+    def get(self, request, *args, **kwargs):
+        unique_subscriber_id = kwargs.get('unique_subscriber_id')
+        organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+        
+        selected_bg_image = BackgroundImage.get_selected_background(organization)
+
+        if selected_bg_image:
+            # Return the background image details (e.g., URL)
+            return Response({
+                'background_image': selected_bg_image.backgroundImage.url
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "No selected background image found."}, status=status.HTTP_404_NOT_FOUND)

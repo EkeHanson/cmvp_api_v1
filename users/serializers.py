@@ -58,4 +58,3 @@ class BackgroundImageSerializer(serializers.ModelSerializer):
 
     def get_organization_name(self, obj):
         return obj.organization.name if obj.organization else None
-
