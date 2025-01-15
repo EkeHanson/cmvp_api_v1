@@ -45,7 +45,7 @@ class CertificateCreateView(viewsets.ModelViewSet):
             end_date__gte=current_time.date()  # Ensures the subscription end date is not in the past
         ).exists()
 
-        if not active_subscription:
+        if not active_subscription and  current_time > organization.trial_end_date:
             return Response({'error': 'No active subscription. Please renew your subscription to upload certificates.'}, status=status.HTTP_403_FORBIDDEN)
 
         # Continue with certificate creation if subscription is valid
