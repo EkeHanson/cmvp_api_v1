@@ -90,3 +90,8 @@ class Organization(AbstractBaseUser):
         """
         # Example: Adjust this based on whether you want users to have access to specific apps
         return True  # Customize app access check as needed
+
+
+class BackgroundImage(models.Model):
+    organization = models.ForeignKey(Organization,  on_delete=models.CASCADE, to_field='unique_subscriber_id')
+    backgroundImage = models.FileField(upload_to='background_image/')

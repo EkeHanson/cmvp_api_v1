@@ -1,17 +1,25 @@
-from .views import  OrganizationView, LoginView, send_contact_email, ResetPasswordView, ConfirmResetPasswordView, GetOrganizationBySubscriberIdView
+from .views import (
+    OrganizationView, 
+    LoginView,
+    send_contact_email,
+    ResetPasswordView,
+    ConfirmResetPasswordView,
+    GetOrganizationBySubscriberIdView,
+    BackgroundImageView   
+)
+
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 
 router = DefaultRouter()
-# router.register(r'users', RegisterView)
 router.register(r'organization', OrganizationView)
+router.register(r'background_image', BackgroundImageView)
 
 
 urlpatterns = [
     path('', include(router.urls)),
     path('login/', LoginView.as_view(), name='login'),
-    
     path('send-contact-email/', send_contact_email, name='send_contact_email'),
     path('password-reset/', ResetPasswordView.as_view(), name='password-reset-request'),
     path('reset-password/<str:uidb64>/<str:token>/', ConfirmResetPasswordView.as_view(), name='reset-password'),

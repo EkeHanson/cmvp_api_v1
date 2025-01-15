@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Certificate, VerificationLog
 from rest_framework import serializers
-from .models import Certificate, BackgroundImage
+from .models import Certificate
 
 class CertificateSerializer(serializers.ModelSerializer):
     organization_name = serializers.SerializerMethodField()
@@ -14,17 +14,6 @@ class CertificateSerializer(serializers.ModelSerializer):
     def get_organization_name(self, obj):
         return obj.organization.name if obj.organization else None
 
-
-class BackgroundImageSerializer(serializers.ModelSerializer):
-    organization_name = serializers.SerializerMethodField()
-    
-
-    class Meta:
-        model = BackgroundImage
-        fields = "__all__"
-
-    def get_organization_name(self, obj):
-        return obj.organization.name if obj.organization else None
 
 
 

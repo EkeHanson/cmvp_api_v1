@@ -6,13 +6,13 @@ from .views import (
     SoftDeletedCertificateView,
     CertificateSoftDeleteView,
     CertificateRestoreView,
-    CertificatesByOrganizationView,
-    BackgroundImageView,
+    CertificatesByOrganizationView  
 )
+
 
 router = DefaultRouter()
 router.register(r'create', CertificateCreateView)
-router.register(r'background_image', BackgroundImageView)
+
 
 urlpatterns = [
     path('', include(router.urls)),

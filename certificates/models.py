@@ -35,8 +35,3 @@ class VerificationLog(models.Model):
     verification_date = models.DateTimeField(auto_now_add=True)
 
 
-
-
-class BackgroundImage(models.Model):
-    organization = models.ForeignKey(Organization,  on_delete=models.CASCADE, to_field='unique_subscriber_id')
-    backgroundImage = models.FileField(upload_to='certificates/')
