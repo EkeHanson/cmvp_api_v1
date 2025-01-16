@@ -25,67 +25,30 @@ class SubscriptionPlanView(ModelViewSet):
     queryset = SubscriptionPlan.objects.all().order_by('id')
     serializer_class = SubscriptionPlanSerializer
 
-    # def create(self, request, *args, **kwargs):
-    #     """Handle POST requests with detailed error logging."""
-    #     serializer = self.get_serializer(data=request.data)
-    #     if not serializer.is_valid():
-    #         # Log and print the errors
-    #         error_message = f"POST request errors: {serializer.errors}"
-    #         print(error_message)  # Print to console
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request, *args, **kwargs):
+        """Handle POST requests with detailed error logging."""
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            # Log and print the errors
+            error_message = f"POST request errors: {serializer.errors}"
+            print(error_message)  # Print to console
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-    #     self.perform_create(serializer)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    # def partial_update(self, request, *args, **kwargs):
-    #     """Handle PATCH requests with detailed error logging."""
-    #     partial = kwargs.pop('partial', True)
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance, data=request.data, partial=partial)
-    #     if not serializer.is_valid():
-    #         # Log and print the errors
-    #         error_message = f"PATCH request errors: {serializer.errors}"
-    #         #print(error_message)  # Print to console
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-    #     self.perform_update(serializer)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    def partial_update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', True)
+        instance = self.get_object()
+        # print("Received request data:", request.data)  # Debug log
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
 
-
-# class UserSubscriptionViewSet(viewsets.ModelViewSet):
-#     queryset = UserSubscription.objects.all().order_by('id')
-#     serializer_class = UserSubscriptionSerializer
-#     permission_classes = [AllowAny]
-
-#     def perform_create(self, serializer):
-
-#         user_id = self.request.data.get('user')
-#         subscription_plan_uuid = self.request.data.get('subscription_plan')
-
-#         if not user_id or not subscription_plan_uuid:
-#             raise ValidationError("User ID and Subscription Plan UUID must be provided in the request.")
-
-#         try:
-#             user = Organization.objects.get(unique_subscriber_id=user_id)
-#         except Organization.DoesNotExist:
-#             raise ValidationError("The provided user does not exist or is not valid.")
-
-#         # Check for any active or not yet expired subscriptions
-#         existing_subscription = UserSubscription.objects.filter(
-#             user=user,
-#             end_date__gte=now().date()  # Checks if there's any subscription that hasn't expired
-#         ).exists()
-
-#         if existing_subscription:
-#             raise ValidationError("The user already has an active or not yet expired subscription and cannot subscribe to another plan until the current subscription expires.")
-
-#         try:
-#             subscription_plan = SubscriptionPlan.objects.get(unique_subscription_plan_id=subscription_plan_uuid)
-#         except SubscriptionPlan.DoesNotExist:
-#             raise ValidationError(f"Subscription plan with UUID {subscription_plan_uuid} does not exist.")
-
-#         serializer.save(user=user, subscription_plan=subscription_plan)
-
+        if serializer.is_valid():
+            # print("Before save:", instance.features)
+            serializer.save()
+            # print("After save:", instance.features)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserSubscriptionViewSet(viewsets.ModelViewSet):

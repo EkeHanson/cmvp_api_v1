@@ -5,11 +5,26 @@ from django.utils.timezone import now
 from .models import SubscriptionPlan, UserSubscription
 from datetime import datetime, timedelta  # Import datetime here
 
+
+
 class SubscriptionPlanSerializer(serializers.ModelSerializer):
+    features = serializers.JSONField()
+
     class Meta:
         model = SubscriptionPlan
-        fields = "__all__"
-        # fields = ['id', 'name', 'duration_in_months', 'price', 'features']
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        # Handle features field explicitly
+        features_data = validated_data.pop('features', None)
+        if features_data:
+            # Ensure that features dictionary is updated with provided data
+            instance.features.update(features_data)
+
+        # Continue with regular update
+        return super().update(instance, validated_data)
+
+
 
 
 class UserSubscriptionSerializer(serializers.ModelSerializer):
