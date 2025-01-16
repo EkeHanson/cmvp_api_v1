@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import Organization, BackgroundImage
-from .serializers import  LoginSerializer, OrganizationSerializer, BackgroundImageSerializer
+from .serializers import  LoginSerializer, OrganizationSerializer, BackgroundImageSerializer, OrganizationSubscriptionSerializer
 from rest_framework.permissions import AllowAny
 from .serializers import LoginSerializer
 from rest_framework.response import Response
@@ -18,6 +18,116 @@ from django.contrib.auth import get_user_model
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
+from subscription.models import UserSubscription
+import base64
+from django.core.files.base import ContentFile
+
+class OrganizationSubscriptionView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        organizations = Organization.objects.all().order_by('id')
+        data = []
+
+        for org in organizations:
+            # Check if the organization has an active subscription
+            subscription = UserSubscription.objects.filter(user=org, is_active=True).first()
+
+            if subscription:
+                subscription_data = {
+                    'id': org.id,
+                    'name': org.name,
+                    'phone': org.phone,
+                    'email': org.email,
+                    'address': org.address,
+                    'date_joined': org.date_joined,
+                    'subscription_plan_name': subscription.subscription_plan.name,
+                    'subscription_start_time': subscription.start_date,
+                    'subscription_end_time': subscription.end_date,
+                    'subscription_duration': (subscription.end_date - subscription.start_date).days,
+                    'num_certificates_uploaded': org.num_certificates_uploaded,
+                    'unique_subscriber_id': org.unique_subscriber_id
+                }
+            else:
+                subscription_data = {
+                    'id': org.id,
+                    'name': org.name,
+                    'phone': org.phone,
+                    'email': org.email,
+                    'address': org.address,
+                    'date_joined': org.date_joined,
+                    'subscription_plan_name': 'Using Free Plan',
+                    'subscription_start_time': None,
+                    'subscription_end_time': None,
+                    'subscription_duration': (org.trial_end_date - org.trial_start_date).days,
+                    'num_certificates_uploaded': org.num_certificates_uploaded,
+                    'unique_subscriber_id': org.unique_subscriber_id
+                }
+
+            # Convert logo to base64 if it exists
+            if org.logo:
+                try:
+                    logo_content = org.logo.read()
+                    subscription_data['logo'] = base64.b64encode(logo_content).decode('utf-8')
+                except Exception as e:
+                    subscription_data['logo'] = None
+            else:
+                subscription_data['logo'] = None
+
+            data.append(subscription_data)
+
+        return Response(data)
+
+
+# class OrganizationSubscriptionView(APIView):
+#     permission_classes = [AllowAny]
+
+#     def get(self, request, *args, **kwargs):
+#         organizations = Organization.objects.all().order_by('id')
+#         data = []
+
+#         for org in organizations:
+#             # Check if the organization has an active subscription
+#             subscription = UserSubscription.objects.filter(user=org, is_active=True).first()
+
+#             if subscription:
+#                 # If subscription exists and is active, get details
+#                 data.append({
+#                     'id': org.id,
+#                     'name': org.name,
+#                     'phone': org.phone,
+#                     'email': org.email,
+#                     'address': org.address,
+#                     'logo': org.logo,
+#                     'date_joined': org.date_joined,
+#                     'subscription_plan_name': subscription.subscription_plan.name,
+#                     'subscription_start_time': subscription.start_date,
+#                     'subscription_end_time': subscription.end_date,
+#                     'subscription_duration': (subscription.end_date - subscription.start_date).days,
+#                     'num_certificates_uploaded': org.num_certificates_uploaded,
+#                     'unique_subscriber_id': org.unique_subscriber_id
+#                 })
+#             else:
+#                 # If no active subscription, assume they are using the free plan
+#                 data.append({
+#                     'id': org.id,
+#                     'name': org.name,
+#                     'phone': org.phone,
+#                     'email': org.email,
+#                     'address': org.address,
+#                     'logo': org.logo,
+#                     'date_joined': org.date_joined,
+#                     'subscription_plan_name': 'Using Free Plan',
+#                     'subscription_start_time': None,
+#                     'subscription_end_time': None,
+
+#                     'subscription_duration': (org.trial_end_date - org.trial_start_date).days,
+
+#                     'num_certificates_uploaded': org.num_certificates_uploaded,
+#                     'unique_subscriber_id': org.unique_subscriber_id
+#                 })
+
+#         return Response(data)
 
 
 class GetOrganizationBySubscriberIdView(APIView):

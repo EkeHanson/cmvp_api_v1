@@ -101,13 +101,19 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
         # serializer.save(user=user, subscription_plan=subscription_plan)
         # return Response(serializer.data, status=status.HTTP_201_CREATED)
                 # Save the new subscription
-        serializer.save(user=user, subscription_plan=subscription_plan)
+        subscription = serializer.save(user=user, subscription_plan=subscription_plan)
+
 
         # Update the organization's is_subscribed field to True
         user.is_subscribed = True
         user.save()
 
+        # Ensure is_active is updated after saving
+        subscription.is_active = True
+        subscription.save()
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 
 class UserSubscriptionDetailView(generics.RetrieveAPIView):

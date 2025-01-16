@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from .models import Organization, BackgroundImage
 from django.utils.timezone import now, timedelta
+from rest_framework import serializers
+from .models import Organization
+from subscription.models import  UserSubscription
+
 
 class OrganizationSerializer(serializers.ModelSerializer):
     role = serializers.CharField(default='sub_admin')
@@ -58,3 +62,25 @@ class BackgroundImageSerializer(serializers.ModelSerializer):
 
     def get_organization_name(self, obj):
         return obj.organization.name if obj.organization else None
+
+
+class OrganizationSubscriptionSerializer(serializers.ModelSerializer):
+    subscription_plan_name = serializers.CharField(source='usersubscription.subscription_plan.name', default="Using Free Plan")
+    subscription_start_time = serializers.DateTimeField(source='usersubscription.start_date', default=None)
+    subscription_end_time = serializers.DateTimeField(source='usersubscription.end_date', default=None)
+    subscription_duration = serializers.SerializerMethodField()
+    num_certificates_uploaded = serializers.IntegerField()
+
+    class Meta:
+        model = Organization
+        fields = ['name', 'subscription_plan_name', 'subscription_start_time', 'subscription_end_time', 'subscription_duration', 'num_certificates_uploaded', 'unique_subscriber_id']
+
+    def get_subscription_duration(self, obj):
+        subscription = obj.usersubscription.filter(is_active=True).first()
+        if subscription:
+            start_date = subscription.start_date
+            end_date = subscription.end_date
+            if start_date and end_date:
+                duration = end_date - start_date
+                return duration.days
+        return "Using Free Plan"

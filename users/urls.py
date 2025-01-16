@@ -8,7 +8,8 @@ from .views import (
     BackgroundImageView,
     BackgroundImageByOrganizationView,
     SetSelectedBackgroundImageView,
-    GetSelectedBackgroundImageView
+    GetSelectedBackgroundImageView,
+    OrganizationSubscriptionView
 )
 
 from django.urls import path, include
@@ -32,9 +33,12 @@ urlpatterns = [
 
     path('organization/<str:unique_subscriber_id>/backgorundImage/', BackgroundImageByOrganizationView.as_view(), name='backgorundImage-by-organization'),
 
-     path('organization/background_image/<int:id>/select/', SetSelectedBackgroundImageView.as_view(), name='select-background-image'),
+    path('organization/background_image/<int:id>/select/', SetSelectedBackgroundImageView.as_view(), name='select-background-image'),
 
-      path('organization/background_image/selected/<str:unique_subscriber_id>/', GetSelectedBackgroundImageView.as_view(), name='get-selected-background-image'),
+    path('organization/background_image/selected/<str:unique_subscriber_id>/', GetSelectedBackgroundImageView.as_view(), name='get-selected-background-image'),
+
+    path('subscription/organizations/subscriptions/', OrganizationSubscriptionView.as_view(), name='organization-subscriptions')
+
 ]
 
 
