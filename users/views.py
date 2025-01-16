@@ -56,9 +56,9 @@ class OrganizationSubscriptionView(APIView):
                     'email': org.email,
                     'address': org.address,
                     'date_joined': org.date_joined,
-                    'subscription_plan_name': 'Using Free Plan',
-                    'subscription_start_time': None,
-                    'subscription_end_time': None,
+                    'subscription_plan_name': ' 30-Day Trial',
+                    'subscription_start_time': org.trial_start_date,
+                    'subscription_end_time': org.trial_end_date,
                     'subscription_duration': (org.trial_end_date - org.trial_start_date).days,
                     'num_certificates_uploaded': org.num_certificates_uploaded,
                     'unique_subscriber_id': org.unique_subscriber_id
