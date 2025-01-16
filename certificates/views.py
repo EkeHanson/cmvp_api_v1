@@ -17,8 +17,65 @@ from django.core.mail import send_mail
 from django.utils.timezone import now
 from django.db import models, transaction
 from django.utils import timezone
-from django.utils.timezone import now
 from django.db.models import Q
+from rest_framework.viewsets import ModelViewSet
+
+
+
+# class CertificateCreateView(ModelViewSet):
+#     queryset = Certificate.objects.filter(deleted=False).order_by('id')
+#     serializer_class = CertificateSerializer
+#     permission_classes = [AllowAny]  # Change to IsAuthenticated if necessary
+#     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+#     def create(self, request, *args, **kwargs):
+#         unique_subscriber_id = request.data.get('organization')
+
+#         if not unique_subscriber_id:
+#             return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+#         current_time = now()
+
+#         # Check subscription status
+#         active_subscription = UserSubscription.objects.filter(
+#             user=organization,
+#             end_date__gte=current_time.date()
+#         ).first()
+
+#         if not active_subscription and current_time > organization.trial_end_date:
+#             return Response({'error': 'No active subscription. Please renew your subscription to upload certificates.'}, status=status.HTTP_403_FORBIDDEN)
+
+#         # Access subscription features through subscription_plan
+#         subscription_plan = active_subscription.subscription_plan
+#         features = subscription_plan.features if subscription_plan else {}
+
+#         # Convert num_daily_certificate_upload to an integer
+#         num_daily_certificate_upload = int(features.get('num_daily_certificate_upload', float('inf')))
+
+#         num_certificates_uploaded_today = Certificate.objects.filter(
+#             organization=organization,
+#             created_at__date=current_time.date()
+#         ).count()
+
+#         if num_certificates_uploaded_today >= num_daily_certificate_upload:
+#             return Response({'error': 'Daily certificate upload limit reached.'}, status=status.HTTP_403_FORBIDDEN)
+
+#         # Add other checks here for num_certificate_categories and maximum_login_users as needed
+
+#         # Proceed with certificate creation
+#         serializer = self.get_serializer(data=request.data)
+#         if serializer.is_valid():
+#             with transaction.atomic():
+#                 serializer.save()
+
+#                 # Increment num_certificates_uploaded field
+#                 organization.num_certificates_uploaded = models.F('num_certificates_uploaded') + 1
+#                 organization.save(update_fields=['num_certificates_uploaded'])
+
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CertificateCreateView(viewsets.ModelViewSet):
     queryset = Certificate.objects.filter(deleted=False).order_by('id')
@@ -47,6 +104,23 @@ class CertificateCreateView(viewsets.ModelViewSet):
 
         if not active_subscription and  current_time > organization.trial_end_date:
             return Response({'error': 'No active subscription. Please renew your subscription to upload certificates.'}, status=status.HTTP_403_FORBIDDEN)
+
+
+        # Access subscription features through subscription_plan
+        subscription_plan = active_subscription.subscription_plan
+        features = subscription_plan.features if subscription_plan else {}
+
+        # Convert num_daily_certificate_upload to an integer
+        num_daily_certificate_upload = int(features.get('num_daily_certificate_upload', float('inf')))
+
+        num_certificates_uploaded_today = Certificate.objects.filter(
+            organization=organization,
+            created_at__date=current_time.date()
+        ).count()
+
+        if num_certificates_uploaded_today >= num_daily_certificate_upload:
+            return Response({'error': 'Daily certificate upload limit reached.'}, status=status.HTTP_403_FORBIDDEN)
+        
 
         # Continue with certificate creation if subscription is valid
         serializer = self.get_serializer(data=request.data)

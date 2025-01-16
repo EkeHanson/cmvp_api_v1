@@ -1,5 +1,7 @@
 from django.db import models
 from users.models import Organization
+from django.utils import timezone
+from django.utils.timezone import now, timedelta
 
 class Certificate(models.Model):
     organization = models.ForeignKey(Organization,  on_delete=models.CASCADE, to_field='unique_subscriber_id')
@@ -11,6 +13,8 @@ class Certificate(models.Model):
     issuedNumber= models.CharField(max_length=255, null=True, blank=True)
 
     issuedBy= models.CharField(max_length=255, null=True, blank=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
 
     client_name = models.CharField(max_length=255)
     issue_date = models.DateField()
