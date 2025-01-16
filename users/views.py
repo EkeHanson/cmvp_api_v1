@@ -65,14 +65,14 @@ class OrganizationSubscriptionView(APIView):
                 }
 
             # Convert logo to base64 if it exists
-            if org.logo:
-                try:
-                    logo_content = org.logo.read()
-                    subscription_data['logo'] = base64.b64encode(logo_content).decode('utf-8')
-                except Exception as e:
-                    subscription_data['logo'] = None
-            else:
-                subscription_data['logo'] = None
+            # if org.logo:
+            #     try:
+            #         logo_content = org.logo.read()
+            #         subscription_data['logo'] = base64.b64encode(logo_content).decode('utf-8')
+            #     except Exception as e:
+            #         subscription_data['logo'] = None
+            # else:
+            #     subscription_data['logo'] = None
 
             data.append(subscription_data)
 
