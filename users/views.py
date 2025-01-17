@@ -20,6 +20,7 @@ from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from subscription.models import UserSubscription
 import base64
+from django.conf import settings
 from django.core.files.base import ContentFile
 
 class OrganizationSubscriptionView(APIView):
@@ -184,7 +185,9 @@ class OrganizationView(viewsets.ModelViewSet):
                 </body>
                 </html>
                 """
-                from_email = "ekenehanson@sterlingspecialisthospitals.com"
+                from_email = settings.DEFAULT_FROM_EMAIL
+
+
                 recipient_list = [company_email]
 
                 send_mail(
@@ -293,7 +296,7 @@ class LoginView(generics.GenericAPIView):
                 </body>
                 </html>
                 """
-                from_email = "ekenehanson@sterlingspecialisthospitals.com"  # Replace with your sender email
+                from_email = settings.DEFAULT_FROM_EMAIL
                 recipient_list = [user.email]
 
                 send_mail(
@@ -395,7 +398,7 @@ class ResetPasswordView(views.APIView):
             </html>
         '''
 
-        from_email = 'ekenehanson@sterlingspecialisthospitals.com'
+        from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [email]
 
         # Send the email with the HTML content
@@ -433,7 +436,6 @@ class ConfirmResetPasswordView(views.APIView):
         return Response({'error': 'Invalid token or user'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def send_contact_email(request):
@@ -459,8 +461,9 @@ def send_contact_email(request):
             </html>
             '''
             recipient_list = [email]
-            # from_email = "support@cmvp.net"
-            from_email = "ekenehanson@sterlingspecialisthospitals.com"
+
+            from_email = settings.DEFAULT_FROM_EMAIL
+            
             send_mail(subject, '', from_email, recipient_list, fail_silently=False, html_message=message)
             return Response({'message': 'Email sent successfully'})
         else:
@@ -534,35 +537,6 @@ class BackgroundImageView(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class BackgroundImageView(viewsets.ModelViewSet):
-#     permission_classes = [AllowAny]
-#     queryset = BackgroundImage.objects.all().order_by('id')
-#     serializer_class = BackgroundImageSerializer
-
-#     def partial_update(self, request, *args, **kwargs):
-#         unique_subscriber_id = kwargs.get('unique_subscriber_id')
-#         organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
-
-#         serializer = self.get_serializer(organization, data=request.data, partial=True)
-        
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-
-#         # Format the error response
-#         error_message = {"error": serializer.errors}
-#         return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
-
-#     def create(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-#         error_message = {"error": serializer.errors}
-#         return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
-
-
 class BackgroundImageByOrganizationView(generics.ListAPIView):
     """
     View to fetch all certificates associated with an organization by unique_subscriber_id.
@@ -586,26 +560,6 @@ class BackgroundImageByOrganizationView(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
-
-# class SetSelectedBackgroundImageView(APIView):
-#     """
-#     View to set a specific background image as the selected background for an organization.
-#     """
-#     def post(self, request, *args, **kwargs):
-#         permission_classes = [AllowAny]
-#         background_image_id = kwargs.get('id')
-#         background_image = get_object_or_404(BackgroundImage, id=background_image_id)
-        
-#         # Unselect all other background images for the organization
-#         BackgroundImage.objects.filter(organization=background_image.organization).update(is_selected=False)
-        
-#         # Set the selected background image
-#         background_image.is_selected = True
-#         background_image.save()
-
-#         return Response({"message": "Background image set as selected."}, status=status.HTTP_200_OK)
-
 class SetSelectedBackgroundImageView(APIView):
     """
     View to set a specific background image as the selected background for an organization.
@@ -624,8 +578,6 @@ class SetSelectedBackgroundImageView(APIView):
         background_image.save()
 
         return Response({"message": "Background image set as selected."}, status=status.HTTP_200_OK)
-
-
 
 
 class GetSelectedBackgroundImageView(APIView):

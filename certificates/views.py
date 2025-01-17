@@ -18,6 +18,7 @@ from django.utils.timezone import now
 from django.db import models, transaction
 from django.utils import timezone
 from django.db.models import Q
+from django.conf import settings
 from rest_framework.viewsets import ModelViewSet
 
 
@@ -189,7 +190,7 @@ class CertificateCreateView(viewsets.ModelViewSet):
             </body>
             </html>
             """
-            from_email = "ekenehanson@sterlingspecialisthospitals.com"  # Replace with your sender email
+            from_email = settings.DEFAULT_FROM_EMAIL  # Replace with your sender email
             recipient_list = [organization.email]
 
             send_mail(

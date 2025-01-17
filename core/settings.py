@@ -108,6 +108,16 @@ DEFAULT_FROM_EMAIL = 'ekenehanson@sterlingspecialisthospitals.com'
 # EMAIL_HOST_PASSWORD = 'Verify$&25Portal'  # Your Hostinger email password
 # DEFAULT_FROM_EMAIL = 'support@cmvp.net'  # Default sender email
 
+# Email Configuration
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'mail.privateemail.com'
+# EMAIL_PORT = 465
+# EMAIL_USE_TLS = False
+# EMAIL_USE_SSL = True
+# EMAIL_HOST_USER = 'support@simservicehub.com'
+# EMAIL_HOST_PASSWORD = 'Michael@2024'
+# DEFAULT_FROM_EMAIL = 'support@simservicehub.com'
+
 
 
 TEMPLATES = [
@@ -152,8 +162,8 @@ DATABASES = {
     }
 }
 
-SIMPLE_JWT = {
 
+SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "AUTH_HEADER_TYPES": ("Bearer",),
