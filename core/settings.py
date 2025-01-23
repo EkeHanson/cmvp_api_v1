@@ -45,8 +45,8 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
 
 
 ROOT_URLCONF = 'core.urls'
@@ -64,17 +66,19 @@ AUTH_USER_MODEL = 'users.Organization'
 # Configure CORS
 # Enable CORS headers for specified origins
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",  # Frontend during local development
-#     "https://new-cmvp-site.vercel.app",
-#     "https://cmvp-project.vercel.app",
-# ]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://cmvp-project.vercel.app",  # Your frontend app
+    "http://localhost:3000", 
+    "https://new-cmvp-site.vercel.app",          # Local development frontend
+]
+
 
 # Allow credentials if necessary
-CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_CREDENTIALS = True
 
-# Allow all origins for development (use only if you trust all origins)
-CORS_ALLOW_ALL_ORIGINS = True
+# # Allow all origins for development (use only if you trust all origins)
+# CORS_ALLOW_ALL_ORIGINS = True
 
 
 REST_FRAMEWORK = {

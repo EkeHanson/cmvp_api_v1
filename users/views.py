@@ -182,7 +182,7 @@ class OrganizationView(viewsets.ModelViewSet):
                 <body>
                     <h3>Welcome to CMVP, {company_name}!</h3>
                     <p> Your account has been successfully created. Please confirm your email address by clicking the link below:</p>
-                    <a href="https://new-cmvp-site.vercel.app/login?email={company_email}">Confirm Email</a>
+                    <a href="https://cmvp-project.vercel.app/login?email={company_email}">Confirm Email</a>
                     <p>Thank you for registering with us!</p>
                 </body>
                 </html>
