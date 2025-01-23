@@ -3,6 +3,11 @@ from users.models import Organization
 from django.utils import timezone
 from django.utils.timezone import now, timedelta
 
+
+class CertificateCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+
 class Certificate(models.Model):
     organization = models.ForeignKey(Organization,  on_delete=models.CASCADE, to_field='unique_subscriber_id')
     certificate_id = models.CharField(max_length=100, unique=True)

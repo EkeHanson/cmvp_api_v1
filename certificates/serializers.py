@@ -1,7 +1,13 @@
 from rest_framework import serializers
 from .models import Certificate, VerificationLog
 from rest_framework import serializers
-from .models import Certificate
+from .models import Certificate, CertificateCategory
+
+class CertificateCategorySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = CertificateCategory
+        fields = "__all__"
 
 class CertificateSerializer(serializers.ModelSerializer):
     organization_name = serializers.SerializerMethodField()

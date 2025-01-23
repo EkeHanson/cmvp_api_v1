@@ -6,12 +6,14 @@ from .views import (
     SoftDeletedCertificateView,
     CertificateSoftDeleteView,
     CertificateRestoreView,
-    CertificatesByOrganizationView  
+    CertificatesByOrganizationView,
+    CertificateCategoryCreateView,
 )
 
 
 router = DefaultRouter()
 router.register(r'create', CertificateCreateView)
+router.register(r'createCategory', CertificateCategoryCreateView)
 
 
 urlpatterns = [
