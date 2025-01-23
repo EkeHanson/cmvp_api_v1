@@ -9,7 +9,7 @@ from .views import (
     BackgroundImageByOrganizationView,
     SetSelectedBackgroundImageView,
     GetSelectedBackgroundImageView,
-    OrganizationSubscriptionView
+    OrganizationSubscriptionView, send_sms,
 )
 
 from django.urls import path, include
@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('login/', LoginView.as_view(), name='login'),
     path('send-contact-email/', send_contact_email, name='send_contact_email'),
+    path('send-contact-sms/', send_sms, name='send_sms'),
     path('password-reset/', ResetPasswordView.as_view(), name='password-reset-request'),
     path('reset-password/<str:uidb64>/<str:token>/', ConfirmResetPasswordView.as_view(), name='reset-password'),
     path('organizations/<str:unique_subscriber_id>/', GetOrganizationBySubscriberIdView.as_view(), name='organization-by-subscriber-id'),

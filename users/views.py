@@ -22,6 +22,8 @@ from subscription.models import UserSubscription
 import base64
 from django.conf import settings
 from django.core.files.base import ContentFile
+import africastalking
+from twilio.rest import Client
 
 class OrganizationSubscriptionView(APIView):
     permission_classes = [AllowAny]
@@ -463,7 +465,7 @@ def send_contact_email(request):
             recipient_list = [email]
 
             from_email = settings.DEFAULT_FROM_EMAIL
-            
+
             send_mail(subject, '', from_email, recipient_list, fail_silently=False, html_message=message)
             return Response({'message': 'Email sent successfully'})
         else:
@@ -598,3 +600,59 @@ class GetSelectedBackgroundImageView(APIView):
             }, status=status.HTTP_200_OK)
         else:
             return Response({"message": "No selected background image found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def send_sms(request):
+#     africastalking_API_KEY = 'atsk_8b605cfd45b12b3748fe81ccde7a4b4ef5a8805e0260714296884907fc371d1f7c15183d'
+#     africastalking_username = "sandbox"
+
+#     if request.method == 'POST':
+#         phone_number = request.data.get('phone')
+#         message_body = request.data.get('message')
+
+#         if not phone_number or not message_body:
+#             return Response({"error": "Phone number and message are required."}, status=400)
+
+#         africastalking.initialize(africastalking_username, africastalking_API_KEY)
+
+#         sms = africastalking.SMS
+#         try:
+#             response = sms.send(message_body, [phone_number])
+
+#             return Response({"success": True, "response": response}, status=200)
+#         except Exception as e:
+#             return Response({"error": str(e)}, status=500)
+
+
+
+
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def send_sms(request):
+    account_sid = 'AC500ccdccd6ebc368dc82d8e36731e000'  # Your Twilio Account SID
+    auth_token = 'cc78f85b4552f9c448fcfbac0226b72c'    # Your Twilio Auth Token
+
+    if request.method == 'POST':
+        phone_number = request.data.get('phone')
+        message_body = request.data.get('message')
+
+        if not phone_number or not message_body:
+            return Response({"error": "Phone number and message are required."}, status=400)
+
+        try:
+            client = Client(account_sid, auth_token)
+            message = client.messages.create(
+                from_='+15074426880',  # Your Twilio phone number
+                body=message_body,
+                to=phone_number
+            )
+
+            return Response({"success": True, "message_sid": message.sid}, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+

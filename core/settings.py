@@ -88,14 +88,36 @@ REST_FRAMEWORK = {
 }
 
 # Email settings for Hostinger
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.hostinger.com'
+# EMAIL_PORT = 465 
+# EMAIL_USE_SSL = True 
+# EMAIL_USE_TLS = False  
+# EMAIL_HOST_USER = 'ekenehanson@sterlingspecialisthospitals.com' 
+# EMAIL_HOST_PASSWORD = '123@Qwertyqwerty@123'
+# DEFAULT_FROM_EMAIL = 'ekenehanson@sterlingspecialisthospitals.com'
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.hostinger.com'
-EMAIL_PORT = 465 
-EMAIL_USE_SSL = True 
-EMAIL_USE_TLS = False  
-EMAIL_HOST_USER = 'ekenehanson@sterlingspecialisthospitals.com' 
-EMAIL_HOST_PASSWORD = '123@Qwertyqwerty@123'
-DEFAULT_FROM_EMAIL = 'ekenehanson@sterlingspecialisthospitals.com'
+EMAIL_HOST = 'mail.privateemail.com'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'support@cmvp.net'  # Your Hostinger email address
+EMAIL_HOST_PASSWORD = 'qwertyqwerty'  # Your Hostinger email password
+DEFAULT_FROM_EMAIL = 'support@cmvp.net'  # Default sender email
+
+
+
+africastalking_API_KEY = 'atsk_8b605cfd45b12b3748fe81ccde7a4b4ef5a8805e0260714296884907fc371d1f7c15183d'
+africastalking_username = 'ekehanson@gmail.com'
+my_twilio_phone = '+15074426880'
+my_twilio_Account_SID = 'AC500ccdccd6ebc368dc82d8e36731e000'
+my_twilio_Auth_Token = 'cc78f85b4552f9c448fcfbac0226b72c'
+
+
+#API KEY SID AND SECRET
+my_twilio_SID = 'SK9468f1d8ba4804a64521477ba320f1e9'
+my_twilio_Secret = 'PPXPim34IviMAJQZzPabyxZnfFnEL4sc'
 
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
