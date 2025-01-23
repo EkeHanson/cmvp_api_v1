@@ -143,12 +143,15 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # Use PostgreSQL as the database engine
-        'NAME': 'cmvp_db_udji',                     # Database name
-        'USER': 'cmvp_db_udji_user',                # Database user
-        'PASSWORD': 'Tgv1wnG07oPUJAaAqOwCf09S3sbDZLXi',  # Database password
-        'HOST': 'dpg-cu3a78jtq21c73fr5g2g-a.oregon-postgres.render.com',  # Database host
-        'PORT': '5432',                             # Default PostgreSQL port
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'cmvpdb_o6xp',
+        'USER': 'cmvpdb_o6xp_user',
+        'PASSWORD': 'dxDW9lxTyaQMjh2gUvM5i2XZ1LetcSia',
+        'HOST': 'dpg-cu96cvlumphs73dam95g-a.oregon-postgres.render.com',
+        'PORT': '5432',  # Default PostgreSQL port
+        'OPTIONS': {
+            'sslmode': 'require'  # Ensure secure connection to the database
+        },
     }
 }
 
@@ -198,8 +201,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'

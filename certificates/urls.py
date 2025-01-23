@@ -13,7 +13,8 @@ from .views import (
 
 router = DefaultRouter()
 router.register(r'create', CertificateCreateView)
-router.register(r'createCategory', CertificateCategoryCreateView)
+router.register(r'categories', CertificateCategoryCreateView)
+
 
 
 urlpatterns = [

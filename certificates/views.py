@@ -28,67 +28,32 @@ class CertificateCreateView(viewsets.ModelViewSet):
     permission_classes = [AllowAny]  # Consider changing to IsAuthenticated if necessary
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
 
-    # def create(self, request, *args, **kwargs):
-    #     unique_subscriber_id = request.data.get('organization')
-
-    #     if not unique_subscriber_id:
-    #         return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
-
-    #     current_time = now()
-    #     # Check if the trial period has ended and the organization is not subscribed
-    #     if current_time > organization.trial_end_date and not organization.is_subscribed:
-    #         return Response({'error': 'Subscription is required to upload certificates after trial period.'}, status=status.HTTP_403_FORBIDDEN)
-
-    #     # Check if there is an active subscription
-    #     active_subscription = UserSubscription.objects.filter(
-    #         user=organization,
-    #         end_date__gte=current_time.date()  # Ensures the subscription end date is not in the past
-    #     ).exists()
-
-    #     if not active_subscription and  current_time > organization.trial_end_date:
-    #         return Response({'error': 'No active subscription. Please renew your subscription to upload certificates.'}, status=status.HTTP_403_FORBIDDEN)
-
-    #     num_certificates_uploaded_today = Certificate.objects.filter(organization=organization,created_at__date=current_time.date()
-    #         ).count()
-
-    #     # Access subscription features through subscription_plan
-    #     if active_subscription:
-    #         subscription_plan = active_subscription.subscription_plan
-    #         features = subscription_plan.features if subscription_plan else {}
-
-    #         # Convert num_daily_certificate_upload to an integer
-    #         num_daily_certificate_upload = int(features.get('num_daily_certificate_upload', float('inf')))
-
-
-    #         if num_certificates_uploaded_today >= num_daily_certificate_upload:
-    #             return Response({'error': 'Daily certificate upload limit reached.'}, status=status.HTTP_403_FORBIDDEN)
-            
-    #     if current_time < organization.trial_end_date:
-    #         if num_certificates_uploaded_today >= 3:
-    #             return Response({'error': '30 Day  Trial Daily certificate upload limit reached.'}, status=status.HTTP_403_FORBIDDEN)
-
-    #     # Continue with certificate creation if subscription is valid
-    #     serializer = self.get_serializer(data=request.data)
-    #     if serializer.is_valid():
-    #         with transaction.atomic():
-    #             serializer.save()
-
-    #             # Increment num_certificates_uploaded field
-    #             organization.num_certificates_uploaded = models.F('num_certificates_uploaded') + 1
-    #             organization.save(update_fields=['num_certificates_uploaded'])
-
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+   
     def create(self, request, *args, **kwargs):
+
+        print(" request.data")
+        print( request.data)
+        print(" request.data")
+
         unique_subscriber_id = request.data.get('organization')
+        
+        
+        unique_certificate_category_id = request.data.get('certificate_category')
+
+        data = request.data.copy()
+        if 'certificate_category' in data and isinstance(data['certificate_category'], list):
+            data['certificate_category'] = data['certificate_category'][0]
+            
 
         if not unique_subscriber_id:
             return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not unique_certificate_category_id:
+            return Response({'error': 'Certificate Category ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+
+        certificate_category = get_object_or_404(CertificateCategory, unique_certificate_category_id=unique_certificate_category_id)
         current_time = now()
 
         # Check if the trial period has ended and the organization is not subscribed
@@ -134,17 +99,44 @@ class CertificateCreateView(viewsets.ModelViewSet):
                 organization.save(update_fields=['num_certificates_uploaded'])
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+        print("serializer.errors")
+        print(serializer.errors)
+        print("serializer.errors")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+    # def partial_update(self, request, *args, **kwargs):
+    #     # Retrieve the certificate instance to be updated
+    #     certificate = self.get_object()
+    #     organization = certificate.organization
+    #     certificate_category = certificate.certificate_category
+        
+    #     # Store the previous values to compare them later
+    #     old_data = CertificateSerializer(certificate).data
+    #     old_data = CertificateSerializer(certificate_category).data
+
+    #     # Validate and update the certificate instance
+    #     serializer = self.get_serializer(certificate, data=request.data, partial=True)
+    #     if serializer.is_valid():
+    #         # Save the updated certificate
+    #         updated_certificate = serializer.save()
+
+    #         # Send email notification if there are any changes
+    #         self.notify_organization_of_changes(organization, old_data, CertificateSerializer(updated_certificate).data)
+
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def partial_update(self, request, *args, **kwargs):
         # Retrieve the certificate instance to be updated
         certificate = self.get_object()
         organization = certificate.organization
+        certificate_category = certificate.certificate_category
         
         # Store the previous values to compare them later
         old_data = CertificateSerializer(certificate).data
+        old_data_category = CertificateCategorySerializer(certificate_category).data  # Corrected this line
 
         # Validate and update the certificate instance
         serializer = self.get_serializer(certificate, data=request.data, partial=True)
@@ -158,6 +150,7 @@ class CertificateCreateView(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def notify_organization_of_changes(self, organization, old_data, new_data):
         """
@@ -349,26 +342,23 @@ class CertificateRestoreView(APIView):
 
 
 
-
-
 class CertificateCategoryCreateView(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
-    queryset = CertificateCategory.objects.all().order_by('-id')
+    
+    queryset = CertificateCategory.objects.order_by('id')
     serializer_class = CertificateCategorySerializer
+    permission_classes = [AllowAny]  # Consider changing to IsAuthenticated if necessary
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+    pagination_class = None
 
-    # def partial_update(self, request, *args, **kwargs):
-    #     unique_subscriber_id = kwargs.get('unique_subscriber_id')
-    #     organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
 
-    #     # Validate and update the organization object using the serializer
-    #     serializer = self.get_serializer(organization, data=request.data, partial=True)
-        
-    #     if serializer.is_valid():
-    #         serializer.save()  # Save the updated data
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-        
-    #     # print("serializer.errors")
-    #     # print(serializer.data)
-    #     # print("serializer.errors")
-    #     # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request, *args, **kwargs):
+
+        # Continue with certificate creation if subscription is valid
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+                serializer.save()
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -2,14 +2,20 @@ from django.db import models
 from users.models import Organization
 from django.utils import timezone
 from django.utils.timezone import now, timedelta
-
+import uuid
 
 class CertificateCategory(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=255, unique=True)
+    unique_certificate_category_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
 
+    def __str__(self):
+        return self.name
 
 class Certificate(models.Model):
     organization = models.ForeignKey(Organization,  on_delete=models.CASCADE, to_field='unique_subscriber_id')
+
+    certificate_category = models.ForeignKey(CertificateCategory,  on_delete=models.CASCADE, to_field='unique_certificate_category_id')
+    
     certificate_id = models.CharField(max_length=100, unique=True)
 
     certificate_title= models.CharField(max_length=255, null=True, blank=True)
