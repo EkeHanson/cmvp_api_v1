@@ -63,10 +63,12 @@ AUTH_USER_MODEL = 'users.Organization'
 
 # Configure CORS
 # Enable CORS headers for specified origins
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",  # Frontend during local development
-#     "https://new-cmvp-site.vercel.app"   # Any other frontend
-# ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Frontend during local development
+    "https://new-cmvp-site.vercel.app",  # Any other frontend
+    "https://cmvp-project.vercel.app",
+]
 
 # Allow credentials if necessary
 CORS_ALLOW_CREDENTIALS = True
