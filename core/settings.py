@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
 ]
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -52,8 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
+
 
 ROOT_URLCONF = 'core.urls'
 
@@ -102,9 +103,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.privateemail.com'
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'support@cmvp.net'  # Your Hostinger email address
-EMAIL_HOST_PASSWORD = 'qwertyqwerty'  # Your Hostinger email password
-DEFAULT_FROM_EMAIL = 'support@cmvp.net'  # Default sender email
+EMAIL_HOST_USER = 'support@cmvp.net'
+EMAIL_HOST_PASSWORD = 'qwertyqwerty'
+DEFAULT_FROM_EMAIL = 'support@cmvp.net'
 
 
 
@@ -118,27 +119,6 @@ my_twilio_Auth_Token = 'cc78f85b4552f9c448fcfbac0226b72c'
 #API KEY SID AND SECRET
 my_twilio_SID = 'SK9468f1d8ba4804a64521477ba320f1e9'
 my_twilio_Secret = 'PPXPim34IviMAJQZzPabyxZnfFnEL4sc'
-
-
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.neamcheap.com'
-# #EMAIL_PORT = 465  # SSL port
-# EMAIL_PORT = 587  # SSL port
-# EMAIL_USE_SSL = False  # Use SSL for secure connection
-# EMAIL_USE_TLS = True  # Ensure this is explicitly set to False
-# EMAIL_HOST_USER = 'support@cmvp.net'  # Your Hostinger email address
-# EMAIL_HOST_PASSWORD = 'Verify$&25Portal'  # Your Hostinger email password
-# DEFAULT_FROM_EMAIL = 'support@cmvp.net'  # Default sender email
-
-# Email Configuration
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'mail.privateemail.com'
-# EMAIL_PORT = 465
-# EMAIL_USE_TLS = False
-# EMAIL_USE_SSL = True
-# EMAIL_HOST_USER = 'support@simservicehub.com'
-# EMAIL_HOST_PASSWORD = 'Michael@2024'
-# DEFAULT_FROM_EMAIL = 'support@simservicehub.com'
 
 
 
