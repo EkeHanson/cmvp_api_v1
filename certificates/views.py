@@ -85,7 +85,7 @@ class CertificateCreateView(viewsets.ModelViewSet):
                 return Response({'error': 'Daily certificate upload limit reached.'}, status=status.HTTP_403_FORBIDDEN)
             
         elif current_time < organization.trial_end_date:
-            if num_certificates_uploaded_today >= 3:
+            if num_certificates_uploaded_today >= 30:
                 return Response({'error': '30 Day Trial Daily certificate upload limit reached.'}, status=status.HTTP_403_FORBIDDEN)
 
         # Continue with certificate creation if subscription is valid
@@ -99,37 +99,18 @@ class CertificateCreateView(viewsets.ModelViewSet):
                 organization.save(update_fields=['num_certificates_uploaded'])
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        print("serializer.errors")
-        print(serializer.errors)
-        print("serializer.errors")
+        # print("serializer.errors")
+        # print(serializer.errors)
+        # print("serializer.errors")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-    # def partial_update(self, request, *args, **kwargs):
-    #     # Retrieve the certificate instance to be updated
-    #     certificate = self.get_object()
-    #     organization = certificate.organization
-    #     certificate_category = certificate.certificate_category
-        
-    #     # Store the previous values to compare them later
-    #     old_data = CertificateSerializer(certificate).data
-    #     old_data = CertificateSerializer(certificate_category).data
-
-    #     # Validate and update the certificate instance
-    #     serializer = self.get_serializer(certificate, data=request.data, partial=True)
-    #     if serializer.is_valid():
-    #         # Save the updated certificate
-    #         updated_certificate = serializer.save()
-
-    #         # Send email notification if there are any changes
-    #         self.notify_organization_of_changes(organization, old_data, CertificateSerializer(updated_certificate).data)
-
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def partial_update(self, request, *args, **kwargs):
         # Retrieve the certificate instance to be updated
+
+        print("Request.data")
+        print(request.data)
+        print("Request.data")
+
         certificate = self.get_object()
         organization = certificate.organization
         certificate_category = certificate.certificate_category
@@ -150,6 +131,7 @@ class CertificateCreateView(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
     def notify_organization_of_changes(self, organization, old_data, new_data):

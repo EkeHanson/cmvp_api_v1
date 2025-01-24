@@ -70,7 +70,8 @@ AUTH_USER_MODEL = 'users.Organization'
 CORS_ALLOWED_ORIGINS = [
     "https://cmvp-project.vercel.app",  # Your frontend app
     "http://localhost:3000", 
-    "https://new-cmvp-site.vercel.app",          # Local development frontend
+    "https://new-cmvp-site.vercel.app",  
+    "http://localhost:5173",      # Local development frontend
 ]
 
 
