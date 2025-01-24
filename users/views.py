@@ -462,7 +462,7 @@ def send_contact_email(request):
             </body>
             </html>
             '''
-            recipient_list = [email]
+            recipient_list = ['info@prolinaceltd.com', 'enterprise@prolianceltd.com', 'ekenehanson@gmail.com']
 
             from_email = settings.DEFAULT_FROM_EMAIL
 

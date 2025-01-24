@@ -107,9 +107,9 @@ class CertificateCreateView(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         # Retrieve the certificate instance to be updated
 
-        print("Request.data")
-        print(request.data)
-        print("Request.data")
+        # print("Request.data")
+        # print(request.data)
+        # print("Request.data")
 
         certificate = self.get_object()
         organization = certificate.organization
