@@ -138,27 +138,27 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'cmvpdb_o6xp',
-#         'USER': 'cmvpdb_o6xp_user',
-#         'PASSWORD': 'dxDW9lxTyaQMjh2gUvM5i2XZ1LetcSia',
-#         'HOST': 'dpg-cu96cvlumphs73dam95g-a.oregon-postgres.render.com',
-#         'PORT': '5432',  # Default PostgreSQL port
-#         'OPTIONS': {
-#             'sslmode': 'require'  # Ensure secure connection to the database
-#         },
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'cmvpdb_o6xp',
+        'USER': 'cmvpdb_o6xp_user',
+        'PASSWORD': 'dxDW9lxTyaQMjh2gUvM5i2XZ1LetcSia',
+        'HOST': 'dpg-cu96cvlumphs73dam95g-a.oregon-postgres.render.com',
+        'PORT': '5432',  # Default PostgreSQL port
+        'OPTIONS': {
+            'sslmode': 'require'  # Ensure secure connection to the database
+        },
+    }
+}
 
 
 SIMPLE_JWT = {
