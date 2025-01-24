@@ -5,9 +5,14 @@ from .models import Certificate, CertificateCategory
 
 
 class CertificateCategorySerializer(serializers.ModelSerializer):
+    organization_name = serializers.SerializerMethodField()
     class Meta:
         model = CertificateCategory
         fields = '__all__'
+
+    def get_organization_name(self, obj):
+        return obj.organization.name if obj.organization else None
+    
 
 class CertificateSerializer(serializers.ModelSerializer):
     organization_name = serializers.SerializerMethodField()

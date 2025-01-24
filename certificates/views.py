@@ -344,3 +344,27 @@ class CertificateCategoryCreateView(viewsets.ModelViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+class CertificateCategoryByOrganizationView(generics.ListAPIView):
+    """
+    View to fetch all certificates associated with an organization by unique_subscriber_id.
+    """
+    serializer_class = CertificateCategorySerializer
+    permission_classes = [AllowAny]
+    pagination_class = None  # Add pagination class
+
+
+    def get_queryset(self):
+        unique_subscriber_id = self.kwargs.get('unique_subscriber_id')
+        organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+        return CertificateCategory.objects.filter(organization=organization).order_by('id')
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)  # Use pagination
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)  # Return paginated response
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

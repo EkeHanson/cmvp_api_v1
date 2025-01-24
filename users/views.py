@@ -24,6 +24,10 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 import africastalking
 from twilio.rest import Client
+from django.utils.timezone import now
+import re
+
+
 
 class OrganizationSubscriptionView(APIView):
     permission_classes = [AllowAny]
@@ -80,57 +84,6 @@ class OrganizationSubscriptionView(APIView):
             data.append(subscription_data)
 
         return Response(data)
-
-
-# class OrganizationSubscriptionView(APIView):
-#     permission_classes = [AllowAny]
-
-#     def get(self, request, *args, **kwargs):
-#         organizations = Organization.objects.all().order_by('id')
-#         data = []
-
-#         for org in organizations:
-#             # Check if the organization has an active subscription
-#             subscription = UserSubscription.objects.filter(user=org, is_active=True).first()
-
-#             if subscription:
-#                 # If subscription exists and is active, get details
-#                 data.append({
-#                     'id': org.id,
-#                     'name': org.name,
-#                     'phone': org.phone,
-#                     'email': org.email,
-#                     'address': org.address,
-#                     'logo': org.logo,
-#                     'date_joined': org.date_joined,
-#                     'subscription_plan_name': subscription.subscription_plan.name,
-#                     'subscription_start_time': subscription.start_date,
-#                     'subscription_end_time': subscription.end_date,
-#                     'subscription_duration': (subscription.end_date - subscription.start_date).days,
-#                     'num_certificates_uploaded': org.num_certificates_uploaded,
-#                     'unique_subscriber_id': org.unique_subscriber_id
-#                 })
-#             else:
-#                 # If no active subscription, assume they are using the free plan
-#                 data.append({
-#                     'id': org.id,
-#                     'name': org.name,
-#                     'phone': org.phone,
-#                     'email': org.email,
-#                     'address': org.address,
-#                     'logo': org.logo,
-#                     'date_joined': org.date_joined,
-#                     'subscription_plan_name': 'Using Free Plan',
-#                     'subscription_start_time': None,
-#                     'subscription_end_time': None,
-
-#                     'subscription_duration': (org.trial_end_date - org.trial_start_date).days,
-
-#                     'num_certificates_uploaded': org.num_certificates_uploaded,
-#                     'unique_subscriber_id': org.unique_subscriber_id
-#                 })
-
-#         return Response(data)
 
 
 class GetOrganizationBySubscriberIdView(APIView):
@@ -212,50 +165,7 @@ class OrganizationView(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class LoginView(generics.GenericAPIView):
-#     serializer_class = LoginSerializer
-#     permission_classes = [AllowAny]
 
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         email = serializer.validated_data['email']
-#         password = serializer.validated_data['password']
-
-#         # print(f"Login attempt: email={email}, password={password}")
-
-#         # Custom authentication using email
-#         try:
-#             user = get_user_model().objects.get(email=email)
-#             if user.check_password(password):
-#                 # print(f"User found: {user.email}")
-#                 refresh = RefreshToken.for_user(user)
-#                 login_time = datetime.now()
-                
-         
-#                 return Response({
-#                     'refresh': str(refresh),
-#                     'access': str(refresh.access_token),
-#                     'email': user.email,
-#                     'userId': user.id,
-#                     'name': user.name,
-#                     'user_role': user.role,
-#                     'phone': user.phone,
-#                     'address': user.address,
-#                     'login_time': login_time.strftime('%I:%M %p'),  # Format time
-#                     'unique_subscriber_id': user.unique_subscriber_id,
-#                     'date_joined': user.date_joined,
-#                 }, status=status.HTTP_200_OK)
-#             else:
-#                 # print("Authentication failed: Incorrect password")
-#                 return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-#         except get_user_model().DoesNotExist:
-#             # print("Authentication failed: User does not exist")
-#             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-from django.core.mail import send_mail
-from django.utils.timezone import now
-import re
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
@@ -600,36 +510,6 @@ class GetSelectedBackgroundImageView(APIView):
             }, status=status.HTTP_200_OK)
         else:
             return Response({"message": "No selected background image found."}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def send_sms(request):
-#     africastalking_API_KEY = 'atsk_8b605cfd45b12b3748fe81ccde7a4b4ef5a8805e0260714296884907fc371d1f7c15183d'
-#     africastalking_username = "sandbox"
-
-#     if request.method == 'POST':
-#         phone_number = request.data.get('phone')
-#         message_body = request.data.get('message')
-
-#         if not phone_number or not message_body:
-#             return Response({"error": "Phone number and message are required."}, status=400)
-
-#         africastalking.initialize(africastalking_username, africastalking_API_KEY)
-
-#         sms = africastalking.SMS
-#         try:
-#             response = sms.send(message_body, [phone_number])
-
-#             return Response({"success": True, "response": response}, status=200)
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=500)
-
-
-
-
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

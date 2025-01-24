@@ -149,14 +149,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvpdb_o6xp',
-        'USER': 'cmvpdb_o6xp_user',
-        'PASSWORD': 'dxDW9lxTyaQMjh2gUvM5i2XZ1LetcSia',
-        'HOST': 'dpg-cu96cvlumphs73dam95g-a.oregon-postgres.render.com',
+        'NAME': 'cmvp_db_e3dc',  # Database name
+        'USER': 'cmvp_db_e3dc_user',  # Username
+        'PASSWORD': 'PqsBrAs9erHoQhFNeDsf7ZBww5Xu0ejV',  # Password
+        'HOST': 'dpg-cu9ruilds78s739ialo0-a.oregon-postgres.render.com',  # Host
         'PORT': '5432',  # Default PostgreSQL port
-        'OPTIONS': {
-            'sslmode': 'require'  # Ensure secure connection to the database
-        },
     }
 }
 

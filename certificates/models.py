@@ -7,9 +7,12 @@ import uuid
 class CertificateCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
     unique_certificate_category_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
+    organization = models.ForeignKey(Organization,  on_delete=models.CASCADE, to_field='unique_subscriber_id')
 
     def __str__(self):
         return self.name
+
+
 
 class Certificate(models.Model):
     organization = models.ForeignKey(Organization,  on_delete=models.CASCADE, to_field='unique_subscriber_id')
