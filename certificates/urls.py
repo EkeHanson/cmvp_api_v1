@@ -9,7 +9,9 @@ from .views import (
     CertificatesByOrganizationView,
     CertificateCategoryCreateView,
 
+
     CertificateCategoryByOrganizationView,
+    CertificateDeleteView,
 )
 
 
@@ -28,5 +30,7 @@ urlpatterns = [
 
     path('certificateCategory/<str:unique_subscriber_id>/', CertificateCategoryByOrganizationView.as_view(), name='category-by-certificate'),
     
+     path('<str:certificate_id>/delete-permanently/', CertificateDeleteView.as_view(), name='delete_permanently_certificate'),
+
     path('soft-deleted-certificates/<str:unique_subscriber_id>/', SoftDeletedCertificateView.as_view(), name='soft-deleted-certificates'),
 ]

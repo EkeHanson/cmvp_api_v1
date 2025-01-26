@@ -104,6 +104,7 @@ class CertificateCreateView(viewsets.ModelViewSet):
         # print("serializer.errors")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
     def partial_update(self, request, *args, **kwargs):
         # Retrieve the certificate instance to be updated
 
@@ -176,6 +177,7 @@ class CertificateCreateView(viewsets.ModelViewSet):
                 fail_silently=False,
                 html_message=message
             )
+
 
 
 class CertificatesByOrganizationView(generics.ListAPIView):
@@ -276,6 +278,16 @@ class CertificateVerificationByOrganizationView(generics.GenericAPIView):
             {"status": "invalid", "message": invalid_reason},
             status=status.HTTP_404_NOT_FOUND
         )
+
+class CertificateDeleteView(APIView):
+    permission_classes = [AllowAny]
+
+    def delete(self, request, certificate_id, *args, **kwargs):
+        certificate = Certificate.objects.filter(certificate_id=certificate_id).first()
+        if certificate:
+            certificate.delete()  # This will permanently delete the certificate from the database
+            return Response({"status": "certificate permanently deleted"}, status=status.HTTP_200_OK)
+        return Response({"error": "Certificate not found"}, status=status.HTTP_404_NOT_FOUND)
 
     
 class SoftDeletedCertificateView(generics.ListAPIView):
