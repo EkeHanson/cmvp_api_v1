@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'subscription',  # Make sure this is included
     # 'analytics',     # Make sure this is included
 
+    'storages',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -70,8 +71,12 @@ AUTH_USER_MODEL = 'users.Organization'
 CORS_ALLOWED_ORIGINS = [
     "https://cmvp-project.vercel.app",  # Your frontend app
     "http://localhost:3000", 
+
+    "https://cmvp.net",
+
     "https://new-cmvp-site.vercel.app",  
-    "http://localhost:5173",      # Local development frontend
+
+    "http://localhost:5173",
 ]
 
 
@@ -216,3 +221,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 logger = logging.getLogger('django.db.backends')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
+
+
+
+# Amazon S3 Bucket Configuration
+AWS_ACCESS_KEY_ID = 'AKIATQZCSRTLILAE4NU6'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'test-first-s3-bucket'
+AWS_S3_SIGNATURE_NAME = 'test-first-s3-bucket'
+AWS_S3_REGION_NAME = 'eu-north-1'  # e.g., 'us-east-1'
+AWS_S3_FILE_OVERWRITE = False  # To prevent overwriting files with the same name
+AWS_DEFAULT_ACL = None         # Ensures proper permissions
+AWS_S3_VERIFY = True         # Ensures proper permissions
+# Optional: Use S3 for media files
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+# Use S3 for static files
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+
+# Static and Media Files Settings
+# STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+# MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
