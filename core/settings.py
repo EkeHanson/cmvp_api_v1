@@ -5,6 +5,8 @@ import os
 import logging
 
 
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -72,6 +74,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://cmvp-project.vercel.app",
 
     "http://localhost:3000", 
+
+    "http://localhost:5173", 
 
     "https://cmvp.net",
 
@@ -155,13 +159,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvp_db_e3dc',  # Database name
-        'USER': 'cmvp_db_e3dc_user',  # Username
-        'PASSWORD': 'PqsBrAs9erHoQhFNeDsf7ZBww5Xu0ejV',  # Password
-        'HOST': 'dpg-cu9ruilds78s739ialo0-a.oregon-postgres.render.com',  # Host
+        'NAME': 'cmvp_db_c26x',
+        'USER': 'cmvp_db_c26x_user',
+        'PASSWORD': 'LzRpuDeBZ0SeWaEVzLN61u3IdADsaql3',
+        'HOST': 'dpg-cucfe7rv2p9s73d71pc0-a.oregon-postgres.render.com',
         'PORT': '5432',  # Default PostgreSQL port
     }
 }
+
 
 
 SIMPLE_JWT = {

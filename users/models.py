@@ -92,13 +92,6 @@ class Organization(AbstractBaseUser):
         return True  # Customize app access check as needed
 
 
-# class BackgroundImage(models.Model):
-#     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, to_field='unique_subscriber_id')
-#     backgroundImage = models.FileField(upload_to='background_image/')
-#     is_selected = models.BooleanField(default=False)
-
-#     def __str__(self):
-#         return f"{self.organization.name} - {'Selected' if self.is_selected else 'Not Selected'}"
 class BackgroundImage(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, to_field='unique_subscriber_id')
     backgroundImage = models.FileField(upload_to='background_image/')
