@@ -121,68 +121,15 @@ class OrganizationView(viewsets.ModelViewSet):
         # print("serializer.errors")
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # def create(self, request, *args, **kwargs):
-    #     # Validate and save the new organization
-    #     serializer = self.get_serializer(data=request.data)
-    #     if serializer.is_valid():
-    #         organization = serializer.save()  # Save the organization object
-
-    #         # Send confirmation email
-    #         company_email = organization.email  # Assuming the model has an 'email' field
-    #         company_name = organization.name  # Assuming the model has a 'name' field
-    #         if company_name:
-    #             subject = "Account Registration Successful"
-    #             message = f"""
-    #             <html>
-    #             <body>
-    #                 <h3>Welcome to CMVP, {company_name}!</h3>
-    #                 <p> Your account has been successfully created. Please confirm your email address by clicking the link below:</p>
-    #                 <a href="https://cmvp-project.vercel.app/login?email={company_email}">Confirm Email</a>
-    #                 <p>Thank you for registering with us!</p>
-    #             </body>
-    #             </html>
-    #             """
-    #             from_email = settings.DEFAULT_FROM_EMAIL
-
-
-    #             recipient_list = [company_email]
-
-    #             send_mail(
-    #                 subject,
-    #                 '',
-    #                 from_email,
-    #                 recipient_list,
-    #                 fail_silently=False,
-    #                 html_message=message,
-    #             )
-
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-    #     print("serializer.errors")
-    #     print(serializer.data)
-    #     print("serializer.errors")
-    #     print(serializer.errors)
-    #     print("serializer.errors")
-
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        
+
         if serializer.is_valid():
             organization = serializer.save()
-
-            # Send verification email
-            # verification_link = f"https://cmvp.net/verify-email/{organization.verification_token}/"
-            # verification_link = f"https://cmvp-project.vercel.app/verify-email/{organization.verification_token}/"
-
-            #verification_link = f"http://localhost:5173/verification-code/:{organization.verification_token}"
 
             verification_link = f"{settings.DEFAULT_WEB_PAGE_BASE_URL}/verification-code/:{organization.verification_token}:/{organization.email}"
 
             subject = "CMVP Registration Verification Email"
-
             message = f"""
             <html>
             <body>
@@ -204,13 +151,12 @@ class OrganizationView(viewsets.ModelViewSet):
             )
 
             return Response({"message": "Please verify your email."}, status=status.HTTP_201_CREATED)
-        
-        # print("serializer.errors")
-        # print(serializer.errors)
-        # print("serializer.errors")
-        
-        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Debugging: Print error details in logs
+        print("Serializer errors:", serializer.errors)
+
+        # Return structured error messages
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
@@ -446,7 +392,7 @@ class LoginView(generics.GenericAPIView):
             subject = "Login Notification"
             message = f"""
             <html>
-            
+
             <body>
                 <h3>Hello {user.name},</h3>
                 <p>Your account was logged into at {login_time.strftime('%I:%M %p')}.</p>
