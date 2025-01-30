@@ -51,6 +51,7 @@ class Organization(AbstractBaseUser):
     phone = models.CharField(max_length=15)
     address = models.CharField(max_length=225)
     email = models.EmailField(max_length=80, unique=True)
+    company_official_mail = models.EmailField(max_length=80, null=True, blank=True)
 
     is_verified = models.BooleanField(default=False)  # New field for email verification
     verification_token = models.CharField(max_length=255, blank=True, null=True)  # New field for token
