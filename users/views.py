@@ -158,6 +158,8 @@ class OrganizationView(viewsets.ModelViewSet):
         # Return structured error messages
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
@@ -198,10 +200,49 @@ class VerifyEmailView(APIView):
 class ResendVerificationEmailView(APIView):
     permission_classes = [AllowAny]
 
+    # def post(self, request):
+
+    #     print(f"Request data: {request.data}")  # Log request data
+
+    #     email = request.data.get("email")
+
+    #     if not email:
+    #         return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    #     organization = Organization.objects.filter(email=email).first()
+
+    #     if not organization:
+    #         return Response({"error": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    #     if organization.is_verified:
+    #         return Response({"error": "Email is already verified"}, status=status.HTTP_400_BAD_REQUEST)
+
+    #     token = get_random_string(6)
+    #     organization.verification_token = token
+    #     organization.save()
+
+    #     verification_link = f"{settings.DEFAULT_WEB_PAGE_BASE_URL}/verification-code/:{organization.verification_token}:/{organization.email}"
+
+    #     subject = "CMVP Registration Verification Email"
+    #     message = f"""
+    #         <html>
+    #         <body>
+    #             <h3>Welcome, {organization.name}!</h3>
+    #             <p>Click the link below to verify your email:</p>
+    #             <a href="{verification_link}">Verify Email</a>
+    #             <p>Or copy and paste this token on the verification page:</p>
+    #             <p><strong>{token}</strong></p>
+    #         </body>
+    #         </html>
+    #         """
+        
+    #     send_mail(
+    #         subject, '', settings.DEFAULT_FROM_EMAIL, [organization.email], 
+    #         fail_silently=False, html_message=message
+    #     )
+
+    #     return Response({"message": "Verification code resent to your email."}, status=status.HTTP_200_OK)
     def post(self, request):
-
-        print(f"Request data: {request.data}")  # Log request data
-
         email = request.data.get("email")
 
         if not email:
@@ -215,25 +256,24 @@ class ResendVerificationEmailView(APIView):
         if organization.is_verified:
             return Response({"error": "Email is already verified"}, status=status.HTTP_400_BAD_REQUEST)
 
-        token = get_random_string(6)
-        organization.verification_token = token
-        organization.save()
+        # Generate a consistent 6-digit token
+        organization.generate_verification_token()
 
-        verification_link = f"{settings.DEFAULT_WEB_PAGE_BASE_URL}/verification-code/:{organization.verification_token}:/{organization.email}"
+        verification_link = f"{settings.DEFAULT_WEB_PAGE_BASE_URL}/verification-code/{organization.verification_token}/{organization.email}"
 
         subject = "CMVP Registration Verification Email"
         message = f"""
-            <html>
-            <body>
-                <h3>Welcome, {organization.name}!</h3>
-                <p>Click the link below to verify your email:</p>
-                <a href="{verification_link}">Verify Email</a>
-                <p>Or copy and paste this token on the verification page:</p>
-                <p><strong>{token}</strong></p>
-            </body>
-            </html>
-            """
-        
+        <html>
+        <body>
+            <h3>Welcome, {organization.name}!</h3>
+            <p>Click the link below to verify your email:</p>
+            <a href="{verification_link}">Verify Email</a>
+            <p>Or copy and paste this token on the verification page:</p>
+            <p><strong>{organization.verification_token}</strong></p>
+        </body>
+        </html>
+        """
+
         send_mail(
             subject, '', settings.DEFAULT_FROM_EMAIL, [organization.email], 
             fail_silently=False, html_message=message
