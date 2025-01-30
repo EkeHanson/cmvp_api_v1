@@ -3,16 +3,31 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
 from django.utils.timezone import now, timedelta
+import random
+
 
 class CustomUserManager(BaseUserManager):
+    # def authenticate(self, email, password):
+    #     try:
+    #         user = self.get(email=email)
+    #         if user.check_password(password):
+    #             return user
+    #     except self.model.DoesNotExist:
+    #         return None
+
 
     def authenticate(self, email, password):
         try:
             user = self.get(email=email)
+
+            if not user.is_verified:
+                return None  # Prevent login if the user is not verified
+
             if user.check_password(password):
                 return user
         except self.model.DoesNotExist:
             return None
+        
         
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -36,6 +51,11 @@ class Organization(AbstractBaseUser):
     phone = models.CharField(max_length=15)
     address = models.CharField(max_length=225)
     email = models.EmailField(max_length=80, unique=True)
+
+    is_verified = models.BooleanField(default=False)  # New field for email verification
+    verification_token = models.CharField(max_length=255, blank=True, null=True)  # New field for token
+
+
 
     #30 DAY FREE TRIAL AFTER ACCOUNT CREATION FIELDS STARTS HERE
 
@@ -76,6 +96,14 @@ class Organization(AbstractBaseUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone']
+
+
+
+    def generate_verification_token(self):
+        """Generate a 6-digit numeric token for email verification."""
+        self.verification_token = str(random.randint(100000, 999999))  # Generates a 6-digit number
+        self.save()
+
 
     def has_perm(self, perm, obj=None):
         """

@@ -27,6 +27,8 @@ from twilio.rest import Client
 from django.utils.timezone import now
 import re
 
+from django.utils.crypto import get_random_string
+
 
 
 class OrganizationSubscriptionView(APIView):
@@ -119,52 +121,184 @@ class OrganizationView(viewsets.ModelViewSet):
         # print("serializer.errors")
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def create(self, request, *args, **kwargs):
-        # Validate and save the new organization
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            organization = serializer.save()  # Save the organization object
+    # def create(self, request, *args, **kwargs):
+    #     # Validate and save the new organization
+    #     serializer = self.get_serializer(data=request.data)
+    #     if serializer.is_valid():
+    #         organization = serializer.save()  # Save the organization object
 
-            # Send confirmation email
-            company_email = organization.email  # Assuming the model has an 'email' field
-            company_name = organization.name  # Assuming the model has a 'name' field
-            if company_name:
-                subject = "Account Registration Successful"
-                message = f"""
-                <html>
-                <body>
-                    <h3>Welcome to CMVP, {company_name}!</h3>
-                    <p> Your account has been successfully created. Please confirm your email address by clicking the link below:</p>
-                    <a href="https://cmvp-project.vercel.app/login?email={company_email}">Confirm Email</a>
-                    <p>Thank you for registering with us!</p>
-                </body>
-                </html>
-                """
-                from_email = settings.DEFAULT_FROM_EMAIL
+    #         # Send confirmation email
+    #         company_email = organization.email  # Assuming the model has an 'email' field
+    #         company_name = organization.name  # Assuming the model has a 'name' field
+    #         if company_name:
+    #             subject = "Account Registration Successful"
+    #             message = f"""
+    #             <html>
+    #             <body>
+    #                 <h3>Welcome to CMVP, {company_name}!</h3>
+    #                 <p> Your account has been successfully created. Please confirm your email address by clicking the link below:</p>
+    #                 <a href="https://cmvp-project.vercel.app/login?email={company_email}">Confirm Email</a>
+    #                 <p>Thank you for registering with us!</p>
+    #             </body>
+    #             </html>
+    #             """
+    #             from_email = settings.DEFAULT_FROM_EMAIL
 
 
-                recipient_list = [company_email]
+    #             recipient_list = [company_email]
 
-                send_mail(
-                    subject,
-                    '',
-                    from_email,
-                    recipient_list,
-                    fail_silently=False,
-                    html_message=message,
-                )
+    #             send_mail(
+    #                 subject,
+    #                 '',
+    #                 from_email,
+    #                 recipient_list,
+    #                 fail_silently=False,
+    #                 html_message=message,
+    #             )
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
         
-        print("serializer.errors")
-        print(serializer.data)
-        print("serializer.errors")
-        print(serializer.errors)
-        print("serializer.errors")
+    #     print("serializer.errors")
+    #     print(serializer.data)
+    #     print("serializer.errors")
+    #     print(serializer.errors)
+    #     print("serializer.errors")
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        
+        if serializer.is_valid():
+            organization = serializer.save()
+
+            # Send verification email
+            # verification_link = f"https://cmvp.net/verify-email/{organization.verification_token}/"
+            # verification_link = f"https://cmvp-project.vercel.app/verify-email/{organization.verification_token}/"
+
+            #verification_link = f"http://localhost:5173/verification-code/:{organization.verification_token}"
+
+            print("settings.DEFAULT_WEB_PAGE_BASE_URL")
+            print(settings.DEFAULT_WEB_PAGE_BASE_URL)
+            print(settings.DEFAULT_FROM_EMAIL)
+            print("settings.DEFAULT_WEB_PAGE_BASE_URL")
+
+            verification_link = f"{settings.DEFAULT_WEB_PAGE_BASE_URL}/verification-code/:{organization.verification_token}:/{organization.email}"
+
+            subject = "CMVP Registration Verification Email"
+
+            message = f"""
+            <html>
+            <body>
+                <h3>Welcome, {organization.name}!</h3>
+                <p>Click the link below to verify your email:</p>
+                <a href="{verification_link}">Verify Email</a>
+                <p>Or copy and paste this token on the verification page:</p>
+                <p><strong>{organization.verification_token}</strong></p>
+            </body>
+            </html>
+            """
+            send_mail(
+                subject,
+                '',
+                settings.DEFAULT_FROM_EMAIL,
+                [organization.email],
+                fail_silently=False,
+                html_message=message,
+            )
+
+            return Response({"message": "Please verify your email."}, status=status.HTTP_201_CREATED)
+        
+        # print("serializer.errors")
+        # print(serializer.errors)
+        # print("serializer.errors")
+        
+        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyEmailView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        token = request.data.get("token")
+        organization = get_object_or_404(Organization, verification_token=token)
+
+        if organization:
+            organization.is_verified = True
+            organization.verification_token = None  # Remove token after verification
+            organization.save()
+
+            # Retrieve the user linked to this organization
+            user = get_user_model().objects.get(email=organization.email)
+
+            # Generate authentication tokens
+            refresh = RefreshToken.for_user(user)
+            login_time = now()
+
+            return Response({
+                'message': "Email verified successfully!",
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'email': user.email,
+                'userId': user.id,
+                'name': user.name,
+                'user_role': user.role,
+                'phone': user.phone,
+                'address': user.address,
+                'login_time': login_time.strftime('%I:%M %p'),
+                'unique_subscriber_id': user.unique_subscriber_id,
+                'date_joined': user.date_joined,
+            }, status=status.HTTP_200_OK)
+
+        return Response({"error": "Invalid or expired token"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class ResendVerificationEmailView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+
+        print(f"Request data: {request.data}")  # Log request data
+
+        email = request.data.get("email")
+
+        if not email:
+            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        organization = Organization.objects.filter(email=email).first()
+
+        if not organization:
+            return Response({"error": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if organization.is_verified:
+            return Response({"error": "Email is already verified"}, status=status.HTTP_400_BAD_REQUEST)
+
+        token = get_random_string(6)
+        organization.verification_token = token
+        organization.save()
+
+        verification_link = f"{settings.DEFAULT_WEB_PAGE_BASE_URL}/verification-code/:{organization.verification_token}:/{organization.email}"
+
+        subject = "CMVP Registration Verification Email"
+        message = f"""
+            <html>
+            <body>
+                <h3>Welcome, {organization.name}!</h3>
+                <p>Click the link below to verify your email:</p>
+                <a href="{verification_link}">Verify Email</a>
+                <p>Or copy and paste this token on the verification page:</p>
+                <p><strong>{token}</strong></p>
+            </body>
+            </html>
+            """
+        
+        send_mail(
+            subject, '', settings.DEFAULT_FROM_EMAIL, [organization.email], 
+            fail_silently=False, html_message=message
+        )
+
+        return Response({"message": "Verification code resent to your email."}, status=status.HTTP_200_OK)
 
 
 class LoginView(generics.GenericAPIView):
@@ -181,6 +315,10 @@ class LoginView(generics.GenericAPIView):
         try:
             user = get_user_model().objects.get(email=email)
             if user.check_password(password):
+
+                if not user.is_verified:
+                    return Response({'error': 'Please verify your email to login'}, status=status.HTTP_400_BAD_REQUEST)
+                
                 # Generate refresh token for the user
                 refresh = RefreshToken.for_user(user)
                 login_time = now()
@@ -208,6 +346,7 @@ class LoginView(generics.GenericAPIView):
                 </body>
                 </html>
                 """
+
                 from_email = settings.DEFAULT_FROM_EMAIL
                 recipient_list = [user.email]
 
