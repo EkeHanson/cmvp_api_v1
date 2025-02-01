@@ -12,4 +12,6 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('payment-confirmation/', payment_confirmation, name='payment_confirmation'),
     path('api/user-subscription/<str:user_id>/', UserSubscriptionDetailView.as_view(), name='user_subscription_detail'),
+    #Add a route for listing all subscriptions for a specific user:
+    path('api/user-subscriptions/<str:user_id>/', UserSubscriptionViewSet.as_view({'get': 'list'}), name='user_subscriptions_list'),
 ]

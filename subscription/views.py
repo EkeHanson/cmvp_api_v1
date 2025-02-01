@@ -64,6 +64,11 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
             error_message = f"POST request errors: {serializer.errors}"
             print(error_message)  # Print to console
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+                # Ensure subscribed_duration is provided
+        subscribed_duration = request.data.get('subscribed_duration')
+        if not subscribed_duration:
+            return Response({'detail': 'Subscribed duration is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         user_id = request.data.get('user')
         subscription_plan_uuid = request.data.get('subscription_plan')
@@ -91,11 +96,17 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
             print(error_message)
             return Response({'detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
+        # try:
+        #     subscription_plan = SubscriptionPlan.objects.get(unique_subscription_plan_id=subscription_plan_uuid)
+        # except SubscriptionPlan.DoesNotExist:
+        #     error_message = f"Subscription plan with UUID {subscription_plan_uuid} does not exist."
+        #     print(error_message)
+        #     return Response({'detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             subscription_plan = SubscriptionPlan.objects.get(unique_subscription_plan_id=subscription_plan_uuid)
         except SubscriptionPlan.DoesNotExist:
-            error_message = f"Subscription plan with UUID {subscription_plan_uuid} does not exist."
-            print(error_message)
+            error_message = "The selected subscription plan does not exist."
             return Response({'detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
         # serializer.save(user=user, subscription_plan=subscription_plan)

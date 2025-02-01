@@ -397,6 +397,82 @@ class ResendVerificationEmailView(APIView):
 #             device_name = "Desktop"
 
 #         return device_name, browser_name
+# class LoginView(generics.GenericAPIView):
+#     serializer_class = LoginSerializer
+#     permission_classes = [AllowAny]
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         email = serializer.validated_data["email"]
+#         password = serializer.validated_data["password"]
+
+#         try:
+#             user = get_user_model().objects.get(email=email)
+
+#             if not user.check_password(password):
+#                 return Response({"error": "Invalid password"}, status=status.HTTP_401_UNAUTHORIZED)
+
+#             if not user.is_verified:
+#                 return Response(
+#                     {"error": "User is not verified. Please check your email for verification."},
+#                     status=status.HTTP_400_BAD_REQUEST,
+#                 )
+
+#             # Generate refresh token for the user
+#             refresh = RefreshToken.for_user(user)
+#             login_time = now()
+
+#             # Extract user-agent from request headers
+#             user_agent = request.META.get("HTTP_USER_AGENT", "")
+#             device_name, browser_name = self.extract_device_and_browser(user_agent)
+
+#             # Send login notification email
+#             subject = "Login Notification"
+#             message = f"""
+#             <html>
+
+#             <body>
+#                 <h3>Hello {user.name},</h3>
+#                 <p>Your account was logged into at {login_time.strftime('%I:%M %p')}.</p>
+#                 <p><strong>Device:</strong> {device_name}</p>
+#                 <p><strong>Browser:</strong> {browser_name}</p>
+#                 <p>If this wasn't you, please reset your password immediately.</p>
+#             </body>
+#             </html>
+
+#             """
+
+#             send_mail(
+#                 subject, "",
+#                 settings.DEFAULT_FROM_EMAIL, [user.email], 
+#                 fail_silently=False,
+#                 html_message=message
+#             )
+
+#             return Response(
+#                 {
+#                     "refresh": str(refresh),
+#                     "access": str(refresh.access_token),
+#                     "email": user.email,
+#                     "userId": user.id,
+#                     "name": user.name,
+#                     "user_role": user.role,
+#                     "phone": user.phone,
+#                     "address": user.address,
+#                     "login_time": login_time.strftime("%I:%M %p"),
+#                     "unique_subscriber_id": user.unique_subscriber_id,
+#                     "date_joined": user.date_joined,
+#                 },
+#                 status=status.HTTP_200_OK,
+#             )
+
+#         except get_user_model().DoesNotExist:
+#             return Response({"error": "User does not exist. Please sign up."}, status=status.HTTP_404_NOT_FOUND)
+
+import re
+
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
@@ -432,7 +508,6 @@ class LoginView(generics.GenericAPIView):
             subject = "Login Notification"
             message = f"""
             <html>
-
             <body>
                 <h3>Hello {user.name},</h3>
                 <p>Your account was logged into at {login_time.strftime('%I:%M %p')}.</p>
@@ -441,7 +516,6 @@ class LoginView(generics.GenericAPIView):
                 <p>If this wasn't you, please reset your password immediately.</p>
             </body>
             </html>
-
             """
 
             send_mail(
@@ -471,7 +545,41 @@ class LoginView(generics.GenericAPIView):
         except get_user_model().DoesNotExist:
             return Response({"error": "User does not exist. Please sign up."}, status=status.HTTP_404_NOT_FOUND)
 
+    def extract_device_and_browser(self, user_agent):
+        """
+        Extracts device name and browser name from the user-agent string.
+        """
+        device_name = "Unknown Device"
+        browser_name = "Unknown Browser"
 
+        # Simple regex to extract browser name from the user-agent
+        browser_patterns = [
+            (r'Chrome/([0-9.]+)', 'Chrome'),
+            (r'Firefox/([0-9.]+)', 'Firefox'),
+            (r'Safari/([0-9.]+)', 'Safari'),
+            (r'Edge/([0-9.]+)', 'Edge'),
+            (r'Opera/([0-9.]+)', 'Opera'),
+            (r'MSIE ([0-9.]+)', 'Internet Explorer'),
+        ]
+
+        # Check if any browser pattern matches
+        for pattern, browser in browser_patterns:
+            match = re.search(pattern, user_agent)
+            if match:
+                browser_name = browser
+                break
+
+        # Device name (simplified method, can be enhanced with more patterns)
+        if "Mobile" in user_agent:
+            device_name = "Mobile Device"
+        elif "Tablet" in user_agent:
+            device_name = "Tablet"
+        else:
+            device_name = "Desktop"
+
+        return device_name, browser_name
+    
+    
 class ResetPasswordView(views.APIView):
     permission_classes = [AllowAny]
 
