@@ -27,7 +27,6 @@ from twilio.rest import Client
 from django.utils.timezone import now
 import re
 
-from django.utils.crypto import get_random_string
 
 
 
@@ -132,13 +131,24 @@ class OrganizationView(viewsets.ModelViewSet):
             subject = "CMVP Registration Verification Email"
             message = f"""
             <html>
-            <body>
-                <h3>Welcome, {organization.name}!</h3>
-                <p>Click the link below to verify your email:</p>
-                <a href="{verification_link}">Verify Email</a>
-                <p>Or copy and paste this token on the verification page:</p>
-                <p><strong>{organization.verification_token}</strong></p>
-            </body>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>CMVP Registration Email Verification </title>
+                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+                </head>
+                <body style="margin: 0; padding: 0; font-family: Poppins, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
+                    <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
+                        <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px;">
+                            <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
+                            <h3 style="font-size: 30px; font-weight: 700;">Welcome, {organization.name}!</h3>
+                            <p style="margin-top: 10px; color:#D8F3DC;">Click the link below to verify your email:</p>
+                            <a href="{verification_link}" style="position: relative; margin: 30px 0px; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 10px 30px; background-color: #FE6601; color: #fff; margin-top: 50px; border-radius: 8px; border:1px solid #FE6601; transition: all 0.3s ease-in-out; text-decoration: none;">Verify Email</a>
+                            <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Or copy and paste this token on the verification page:</p>
+                            <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
+                        </div>
+                    </div>
+                </body>
             </html>
             """
             send_mail(
@@ -263,15 +273,26 @@ class ResendVerificationEmailView(APIView):
 
         subject = "CMVP Registration Verification Email"
         message = f"""
-        <html>
-        <body>
-            <h3>Welcome, {organization.name}!</h3>
-            <p>Click the link below to verify your email:</p>
-            <a href="{verification_link}">Verify Email</a>
-            <p>Or copy and paste this token on the verification page:</p>
-            <p><strong>{organization.verification_token}</strong></p>
-        </body>
-        </html>
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>CMVP Registration Email Verification </title>
+                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+                </head>
+                <body style="margin: 0; padding: 0; font-family: Poppins, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
+                    <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
+                        <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px;">
+                            <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
+                            <h3 style="font-size: 30px; font-weight: 700;">Welcome, {organization.name}!</h3>
+                            <p style="margin-top: 10px; color:#D8F3DC;">Click the link below to verify your email:</p>
+                            <a href="{verification_link}" style="position: relative; margin: 30px 0px; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 10px 30px; background-color: #FE6601; color: #fff; margin-top: 50px; border-radius: 8px; border:1px solid #FE6601; transition: all 0.3s ease-in-out; text-decoration: none;">Verify Email</a>
+                            <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Or copy and paste this token on the verification page:</p>
+                            <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
+                        </div>
+                    </div>
+                </body>
+            </html>
         """
 
         send_mail(
@@ -282,196 +303,6 @@ class ResendVerificationEmailView(APIView):
         return Response({"message": "Verification code resent to your email."}, status=status.HTTP_200_OK)
 
 
-# class LoginView(generics.GenericAPIView):
-#     serializer_class = LoginSerializer
-#     permission_classes = [AllowAny]
-
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         email = serializer.validated_data['email']
-#         password = serializer.validated_data['password']
-
-#         try:
-#             user = get_user_model().objects.get(email=email)
-#             if user.check_password(password):
-
-#                 if not user.is_verified:
-
-#                     print(user.is_verified)
-#                     print("User is not verified")
-
-#                     return Response({'error': 'User is verified'}, status=status.HTTP_400_BAD_REQUEST)
-                
-                
-#                 # Generate refresh token for the user
-#                 refresh = RefreshToken.for_user(user)
-#                 login_time = now()
-
-#                 # Extract user-agent from request headers
-#                 user_agent = request.META.get('HTTP_USER_AGENT', '')
-#                 device_name, browser_name = self.extract_device_and_browser(user_agent)
-
-#                 # Send email notification of login
-#                 subject = "Login Notification"
-#                 message = f"""
-#                 <html>
-#                 <body>
-#                     <h3>Hello {user.name},</h3>
-#                     <p>This is a notification that your account with <strong>cmvp.net</strong> has been successfully logged into at {login_time.strftime('%I:%M %p')}.</p>
-#                     <p><strong>Login Details:</strong></p>
-#                     <ul>
-#                         <li><strong>Login Time:</strong> {login_time.strftime('%I:%M %p')}</li>
-#                         <li><strong>Device:</strong> {device_name}</li>
-#                         <li><strong>Browser:</strong> {browser_name}</li>
-#                     </ul>
-#                     <p>If you did not initiate this login, please contact support immediately or recover your account with our forgotten password feature.</p>
-#                     <p>Best regards,</p>
-#                     <p>Your Support Team</p>
-#                 </body>
-#                 </html>
-#                 """
-
-#                 from_email = settings.DEFAULT_FROM_EMAIL
-#                 recipient_list = [user.email]
-
-#                 send_mail(
-#                     subject,
-#                     '',
-#                     from_email,
-#                     recipient_list,
-#                     fail_silently=False,
-#                     html_message=message
-#                 )
-
-#                 return Response({
-#                     'refresh': str(refresh),
-#                     'access': str(refresh.access_token),
-#                     'email': user.email,
-#                     'userId': user.id,
-#                     'name': user.name,
-#                     'user_role': user.role,
-#                     'phone': user.phone,
-#                     'address': user.address,
-#                     'login_time': login_time.strftime('%I:%M %p'),
-#                     'unique_subscriber_id': user.unique_subscriber_id,
-#                     'date_joined': user.date_joined,
-#                 }, status=status.HTTP_200_OK)
-
-#             else:
-#                 return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-#         except get_user_model().DoesNotExist:
-#             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-#     def extract_device_and_browser(self, user_agent):
-#         """
-#         Extracts device name and browser name from the user-agent string.
-#         """
-#         device_name = "Unknown Device"
-#         browser_name = "Unknown Browser"
-        
-#         # Simple regex to extract browser name from the user-agent
-#         browser_patterns = [
-#             (r'Chrome/([0-9.]+)', 'Chrome'),
-#             (r'Firefox/([0-9.]+)', 'Firefox'),
-#             (r'Safari/([0-9.]+)', 'Safari'),
-#             (r'Edge/([0-9.]+)', 'Edge'),
-#             (r'Opera/([0-9.]+)', 'Opera'),
-#             (r'MSIE ([0-9.]+)', 'Internet Explorer'),
-#         ]
-
-#         # Check if any browser pattern matches
-#         for pattern, browser in browser_patterns:
-#             match = re.search(pattern, user_agent)
-#             if match:
-#                 browser_name = browser
-#                 break
-
-#         # Device name (simplified method, can be enhanced with more patterns)
-#         if "Mobile" in user_agent:
-#             device_name = "Mobile Device"
-#         elif "Tablet" in user_agent:
-#             device_name = "Tablet"
-#         else:
-#             device_name = "Desktop"
-
-#         return device_name, browser_name
-# class LoginView(generics.GenericAPIView):
-#     serializer_class = LoginSerializer
-#     permission_classes = [AllowAny]
-
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         email = serializer.validated_data["email"]
-#         password = serializer.validated_data["password"]
-
-#         try:
-#             user = get_user_model().objects.get(email=email)
-
-#             if not user.check_password(password):
-#                 return Response({"error": "Invalid password"}, status=status.HTTP_401_UNAUTHORIZED)
-
-#             if not user.is_verified:
-#                 return Response(
-#                     {"error": "User is not verified. Please check your email for verification."},
-#                     status=status.HTTP_400_BAD_REQUEST,
-#                 )
-
-#             # Generate refresh token for the user
-#             refresh = RefreshToken.for_user(user)
-#             login_time = now()
-
-#             # Extract user-agent from request headers
-#             user_agent = request.META.get("HTTP_USER_AGENT", "")
-#             device_name, browser_name = self.extract_device_and_browser(user_agent)
-
-#             # Send login notification email
-#             subject = "Login Notification"
-#             message = f"""
-#             <html>
-
-#             <body>
-#                 <h3>Hello {user.name},</h3>
-#                 <p>Your account was logged into at {login_time.strftime('%I:%M %p')}.</p>
-#                 <p><strong>Device:</strong> {device_name}</p>
-#                 <p><strong>Browser:</strong> {browser_name}</p>
-#                 <p>If this wasn't you, please reset your password immediately.</p>
-#             </body>
-#             </html>
-
-#             """
-
-#             send_mail(
-#                 subject, "",
-#                 settings.DEFAULT_FROM_EMAIL, [user.email], 
-#                 fail_silently=False,
-#                 html_message=message
-#             )
-
-#             return Response(
-#                 {
-#                     "refresh": str(refresh),
-#                     "access": str(refresh.access_token),
-#                     "email": user.email,
-#                     "userId": user.id,
-#                     "name": user.name,
-#                     "user_role": user.role,
-#                     "phone": user.phone,
-#                     "address": user.address,
-#                     "login_time": login_time.strftime("%I:%M %p"),
-#                     "unique_subscriber_id": user.unique_subscriber_id,
-#                     "date_joined": user.date_joined,
-#                 },
-#                 status=status.HTTP_200_OK,
-#             )
-
-#         except get_user_model().DoesNotExist:
-#             return Response({"error": "User does not exist. Please sign up."}, status=status.HTTP_404_NOT_FOUND)
-
-import re
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
@@ -516,6 +347,7 @@ class LoginView(generics.GenericAPIView):
                 <p>If this wasn't you, please reset your password immediately.</p>
             </body>
             </html>
+            
             """
 
             send_mail(
