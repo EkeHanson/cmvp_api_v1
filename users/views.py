@@ -130,26 +130,32 @@ class OrganizationView(viewsets.ModelViewSet):
 
             subject = "CMVP Registration Verification Email"
             message = f"""
+
             <html>
-                <head>
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <title>CMVP Registration Email Verification </title>
-                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-                </head>
-                <body style="margin: 0; padding: 0; font-family: Poppins, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
-                    <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
-                        <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px;">
-                            <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
-                            <h3 style="font-size: 30px; font-weight: 700;">Welcome, {organization.name}!</h3>
-                            <p style="margin-top: 10px; color:#D8F3DC;">Click the link below to verify your email:</p>
-                            <a href="{verification_link}" style="position: relative; margin: 30px 0px; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 10px 30px; background-color: #FE6601; color: #fff; margin-top: 50px; border-radius: 8px; border:1px solid #FE6601; transition: all 0.3s ease-in-out; text-decoration: none;">Verify Email</a>
-                            <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Or copy and paste this token on the verification page:</p>
-                            <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
-                        </div>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>CMVP Registration Email Verification </title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: Poppins, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; text-align: center;">
+                <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
+                    <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px; padding-bottom: 0px !important;">
+                        <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
+                        <h3 style="font-size: 30px; font-weight: 700;">{organization.name}!</h3>
+                        <p style="margin-top: 10px; color:#D8F3DC;">Click the link below to verify your email:</p>
+                        <a href="{verification_link}" style="position: relative; margin: 30px 0px; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 10px 30px; background-color: #FE6601; color: #fff; margin-top: 50px; border-radius: 8px; border:1px solid #FE6601; text-decoration: none; transition:all 0.3s ease-in-out;">Verify Email</a>
+                        <p style="margin-top: 10px; color:#D8F3DC;">Or copy and paste this token on the verification page:</p>
+                        <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
+                        <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
+                            <h5>Thanks for using our platform</h5>
+                            <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
+                            <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
+                        </footer>
                     </div>
-                </body>
+                </div>
+            </body>
             </html>
+
             """
             send_mail(
                 subject,
@@ -210,98 +216,55 @@ class VerifyEmailView(APIView):
 class ResendVerificationEmailView(APIView):
     permission_classes = [AllowAny]
 
-    # def post(self, request):
-
-    #     print(f"Request data: {request.data}")  # Log request data
-
-    #     email = request.data.get("email")
-
-    #     if not email:
-    #         return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     organization = Organization.objects.filter(email=email).first()
-
-    #     if not organization:
-    #         return Response({"error": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    #     if organization.is_verified:
-    #         return Response({"error": "Email is already verified"}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     token = get_random_string(6)
-    #     organization.verification_token = token
-    #     organization.save()
-
-    #     verification_link = f"{settings.DEFAULT_WEB_PAGE_BASE_URL}/verification-code/:{organization.verification_token}:/{organization.email}"
-
-    #     subject = "CMVP Registration Verification Email"
-    #     message = f"""
-    #         <html>
-    #         <body>
-    #             <h3>Welcome, {organization.name}!</h3>
-    #             <p>Click the link below to verify your email:</p>
-    #             <a href="{verification_link}">Verify Email</a>
-    #             <p>Or copy and paste this token on the verification page:</p>
-    #             <p><strong>{token}</strong></p>
-    #         </body>
-    #         </html>
-    #         """
-        
-    #     send_mail(
-    #         subject, '', settings.DEFAULT_FROM_EMAIL, [organization.email], 
-    #         fail_silently=False, html_message=message
-    #     )
-
-    #     return Response({"message": "Verification code resent to your email."}, status=status.HTTP_200_OK)
     def post(self, request):
-        email = request.data.get("email")
+            email = request.data.get("email")
 
-        if not email:
-            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+            if not email:
+                return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        organization = Organization.objects.filter(email=email).first()
+            organization = Organization.objects.filter(email=email).first()
 
-        if not organization:
-            return Response({"error": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
+            if not organization:
+                return Response({"error": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        if organization.is_verified:
-            return Response({"error": "Email is already verified"}, status=status.HTTP_400_BAD_REQUEST)
+            if organization.is_verified:
+                return Response({"error": "Email is already verified"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Generate a consistent 6-digit token
-        organization.generate_verification_token()
+            # Generate a consistent 6-digit token
+            organization.generate_verification_token()
 
-        verification_link = f"{settings.DEFAULT_WEB_PAGE_BASE_URL}/verification-code/{organization.verification_token}/{organization.email}"
+            verification_link = f"{settings.DEFAULT_WEB_PAGE_BASE_URL}/verification-code/{organization.verification_token}/{organization.email}"
 
-        subject = "CMVP Registration Verification Email"
-        message = f"""
-            <html>
-                <head>
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <title>CMVP Registration Email Verification </title>
-                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-                </head>
-                <body style="margin: 0; padding: 0; font-family: Poppins, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
-                    <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
-                        <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px;">
-                            <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
-                            <h3 style="font-size: 30px; font-weight: 700;">Welcome, {organization.name}!</h3>
-                            <p style="margin-top: 10px; color:#D8F3DC;">Click the link below to verify your email:</p>
-                            <a href="{verification_link}" style="position: relative; margin: 30px 0px; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 10px 30px; background-color: #FE6601; color: #fff; margin-top: 50px; border-radius: 8px; border:1px solid #FE6601; transition: all 0.3s ease-in-out; text-decoration: none;">Verify Email</a>
-                            <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Or copy and paste this token on the verification page:</p>
-                            <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
+            subject = "CMVP Registration Verification Email"
+            message = f"""
+                <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <title>CMVP Registration Email Verification </title>
+                        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+                    </head>
+                    <body style="margin: 0; padding: 0; font-family: Poppins, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
+                        <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
+                            <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px;">
+                                <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
+                                <h3 style="font-size: 30px; font-weight: 700;">Welcome, {organization.name}!</h3>
+                                <p style="margin-top: 10px; color:#D8F3DC;">Click the link below to verify your email:</p>
+                                <a href="{verification_link}" style="position: relative; margin: 30px 0px; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 10px 30px; background-color: #FE6601; color: #fff; margin-top: 50px; border-radius: 8px; border:1px solid #FE6601; transition: all 0.3s ease-in-out; text-decoration: none;">Verify Email</a>
+                                <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Or copy and paste this token on the verification page:</p>
+                                <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
+                            </div>
                         </div>
-                    </div>
-                </body>
-            </html>
-        """
+                    </body>
+                </html>
+            """
 
-        send_mail(
-            subject, '', settings.DEFAULT_FROM_EMAIL, [organization.email], 
-            fail_silently=False, html_message=message
-        )
+            send_mail(
+                subject, '', settings.DEFAULT_FROM_EMAIL, [organization.email], 
+                fail_silently=False, html_message=message
+            )
 
-        return Response({"message": "Verification code resent to your email."}, status=status.HTTP_200_OK)
-
+            return Response({"message": "Verification code resent to your email."}, status=status.HTTP_200_OK)
 
 
 class LoginView(generics.GenericAPIView):
@@ -339,12 +302,33 @@ class LoginView(generics.GenericAPIView):
             subject = "Login Notification"
             message = f"""
             <html>
-            <body>
-                <h3>Hello {user.name},</h3>
-                <p>Your account was logged into at {login_time.strftime('%I:%M %p')}.</p>
-                <p><strong>Device:</strong> {device_name}</p>
-                <p><strong>Browser:</strong> {browser_name}</p>
-                <p>If this wasn't you, please reset your password immediately.</p>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>CMVP LOGIN EMAIL</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: Poppins, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
+                <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
+                    <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px; padding-bottom: 0px !important;">
+                        <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
+                            <h3 style="font-size: 30px; font-weight: 700;">Hello {user.name},</h3>
+                            <p style="margin-top: 10px; color:#D8F3DC;">Your account was logged into at {login_time.strftime('%I:%M %p')}.</p>
+                            <p style="margin-top: 10px; color:#D8F3DC;"><strong style="color: #FE6601 !important;">Device:</strong> {device_name}</p>
+                            <p style="margin-top: 10px; color:#D8F3DC;"><strong style="color: #FE6601 !important;">Browser:</strong> {browser_name}</p>
+                            <p style="margin-top: 10px; color:#D8F3DC;">If this wasn't you, please reset your password immediately.</p>
+                            <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
+                                <h5>Thanks you for using our platform</h5>
+                                <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
+                                <p style="font-size: 13px !important; color: #fff !important;">
+                                    ©
+                                <script>
+                                    document.write(new Date().getFullYear());
+                                </script>
+                                CMVP. All rights reserved.
+                                </p>
+                            </footer>
+                        </div>
+                </div>
             </body>
             </html>
             

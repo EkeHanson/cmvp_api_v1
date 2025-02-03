@@ -149,20 +149,37 @@ class CertificateCreateView(viewsets.ModelViewSet):
         if changes:
             subject = f"Certificate Updated: {new_data.get('certificate_id')}"
             message = f"""
+
+
             <html>
-            <body>
-                <h3>Hello {organization.name},</h3>
-                <p>The following certificate has been updated:</p>
-                <ul>
-                    <li><strong>Certificate ID:</strong> {new_data.get('certificate_id')}</li>
-                    <li><strong>Updated Fields:</strong></li>
-                    <ul>
-                        {"".join([f"<li>{change}</li>" for change in changes])}
-                    </ul>
-                </ul>
-                <p>If you did not request these changes, please contact support immediately.</p>
-                <p>Best regards,</p>
-                <p>cmvp Tech Support Team</p>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>Certificate Edit Notification</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: Poppins,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
+                <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
+                    <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px; padding-bottom: 0px !important;">
+                        <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
+                        <h3 style="font-size: 30px; font-weight: 700;">Hello {organization.name},</h3>
+                        <p style="margin-top: 10px; color:#D8F3DC;">The following certificate has been updated:</p>
+                        <ul style="margin-top: 15px; list-style: none; padding: 0;">
+                            <li style="margin-top: 10px;"><strong>Certificate ID:</strong> {new_data.get('certificate_id')}</li>
+                            <li style="margin-top: 10px;"><strong>Updated Fields:</strong></li>
+                            <ul style="margin-top: 10px; list-style: none; padding: 0;">
+                                {"".join([f"<li style='margin-top: 10px;'>{change}</li>" for change in changes])}
+                            </ul>
+                        </ul>
+                        <p style="margin-top: 10px; color:#D8F3DC;">If you did not request these changes, please contact support immediately.</p>
+                        <p style="margin-top: 10px; color:#D8F3DC;">Best regards,</p>
+                        <p style="margin-top: 10px; color:#D8F3DC;">CMVP Tech Support Team</p>
+                        <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1); text-align: center;">
+                            <h5 style="margin: 0; padding: 0; font-size: 18px;">Thank you for using our platform</h5>
+                            <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
+                            <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
+                        </footer>
+                    </div>
+                </div>
             </body>
             </html>
             """

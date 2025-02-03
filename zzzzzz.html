@@ -1,122 +1,20 @@
-from rest_framework import generics, status
-from rest_framework.viewsets import ModelViewSet
-from rest_framework import viewsets, status, generics, views
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import permissions, viewsets
-from rest_framework.exceptions import NotAuthenticated
-from rest_framework.response import Response
-from django.utils.timezone import now
-from datetime import timedelta
-import requests
-from rest_framework.exceptions import ValidationError
-from rest_framework.decorators import api_view
-from django.conf import settings
-from .models import SubscriptionPlan
-from rest_framework import viewsets, permissions
-from .models import SubscriptionPlan, UserSubscription
-from users.models import Organization
-from .serializers import SubscriptionPlanSerializer, UserSubscriptionSerializer
-
-# CRUD View for Subscription Plans
-
-class SubscriptionPlanView(ModelViewSet):
-    permission_classes = [AllowAny]
-    queryset = SubscriptionPlan.objects.all().order_by('id')
-    serializer_class = SubscriptionPlanSerializer
-
-    # def create(self, request, *args, **kwargs):
-    #     """Handle POST requests with detailed error logging."""
-    #     serializer = self.get_serializer(data=request.data)
-    #     if not serializer.is_valid():
-    #         # Log and print the errors
-    #         error_message = f"POST request errors: {serializer.errors}"
-    #         print(error_message)  # Print to console
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-    #     self.perform_create(serializer)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    # def partial_update(self, request, *args, **kwargs):
-    #     """Handle PATCH requests with detailed error logging."""
-    #     partial = kwargs.pop('partial', True)
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance, data=request.data, partial=partial)
-    #     if not serializer.is_valid():
-    #         # Log and print the errors
-    #         error_message = f"PATCH request errors: {serializer.errors}"
-    #         #print(error_message)  # Print to console
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-    #     self.perform_update(serializer)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class UserSubscriptionViewSet(viewsets.ModelViewSet):
-    queryset = UserSubscription.objects.all().order_by('id')
-    serializer_class = UserSubscriptionSerializer
-    permission_classes = [AllowAny]
-
-    def perform_create(self, serializer):
-        user_id = self.request.data.get('user')
-        subscription_plan_uuid = self.request.data.get('subscription_plan')
-
-        if not user_id or not subscription_plan_uuid:
-            raise ValidationError("User ID and Subscription Plan UUID must be provided in the request.")
-        
-        try:
-            user = Organization.objects.get(unique_subscriber_id=user_id)
-        except Organization.DoesNotExist:
-            raise ValidationError("The provided user does not exist or is not valid.")
-
-        print(f"Looking for subscription plan with UUID {subscription_plan_uuid}")
-        try:
-            subscription_plan = SubscriptionPlan.objects.get(unique_subscription_plan_id=subscription_plan_uuid)
-            print(f"Found subscription plan: {subscription_plan}")
-        except SubscriptionPlan.DoesNotExist:
-            print(f"Subscription plan with UUID {subscription_plan_uuid} does not exist.")
-            raise ValidationError(f"Subscription plan with UUID {subscription_plan_uuid} does not exist.")
-        
-        # Perform the rest of your logic...
-
-
-
-def initiate_payment(user, subscription_plan):
-    remita_url = "https://remita.net/api/payment/initiate"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {settings.REMITA_API_KEY}"
-    }
-    payload = {
-        "amount": str(subscription_plan.price),
-        "currency": "NGN",
-        "description": f"Subscription for {subscription_plan.name}",
-        "customerId": user.id,
-        "customerEmail": user.email,
-        "returnUrl": "https://yourwebsite.com/payment-confirmation"
-    }
-    response = requests.post(remita_url, json=payload, headers=headers)
-    return response.json()
-
-
-
-@api_view(['POST'])
-def payment_confirmation(request):
-    data = request.data
-    transaction_status = data.get("status")
-    transaction_id = data.get("transactionId")
-    user_id = data.get("customerId")
-
-    try:
-        subscription = UserSubscription.objects.get(user__id=user_id, is_active=False, transaction_id=transaction_id)
-        
-        if transaction_status == "success":
-            subscription.is_active = True
-            subscription.start_date = now()
-            subscription.end_date = subscription.start_date + timedelta(days=subscription.subscription_plan.duration_in_months * 30)
-            subscription.save()
-            return Response({"message": "Subscription activated successfully."}, status=200)
-        else:
-            return Response({"message": "Payment failed."}, status=400)
-
-    except UserSubscription.DoesNotExist:
-        return Response({"message": "Subscription not found."}, status=404)
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>CMVP Registration Email Verification </title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: Poppins, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
+        <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
+            <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px;">
+                <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
+                <h3 style="font-size: 30px; font-weight: 700;">Welcome, {organization.name}!</h3>
+                <p style="margin-top: 10px; color:#D8F3DC;">Click the link below to verify your email:</p>
+                <a href="{verification_link}" style="position: relative; margin: 30px 0px; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 10px 30px; background-color: #FE6601; color: #fff; margin-top: 50px; border-radius: 8px; border:1px solid #FE6601; transition: all 0.3s ease-in-out; text-decoration: none;">Verify Email</a>
+                <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Or copy and paste this token on the verification page:</p>
+                <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
+            </div>
+        </div>
+    </body>
+</html>
