@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
 
-    'storages',
+    # 'storages',
     #Second Party Apps
     'users',        # Make sure this is included
     'certificates',  # Make sure this is included
@@ -221,11 +221,6 @@ USE_TZ = True
 
 
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # If using a 'static' folder for development
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Used when collecting static files for deployment
-
-
 # STATIC_URL = 'static/'
 # MEDIA_URL = '/media/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
@@ -242,35 +237,34 @@ logger.addHandler(logging.StreamHandler())
 
 # AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 # AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+# AWS_STORAGE_BUCKET_NAME = 'cmvp-files'
+# AWS_S3_SIGNATURE_VERSION = 's3v4'
+# AWS_S3_REGION_NAME = 'eu-north-1'
+# AWS_S3_FILE_OVERWRITE = False  # Prevents overwriting files with the same name
+# AWS_DEFAULT_ACL = None
+# AWS_S3_VERIFY = True
+# AWS_S3_ADDRESSING_STYLE = "virtual"  # Helps resolve issues in some regions
 
-AWS_ACCESS_KEY_ID = "AKIAWCYX7YU2UMEWKNM7"
-AWS_SECRET_ACCESS_KEY = "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"
-AWS_STORAGE_BUCKET_NAME = 'cmvp-files'
-AWS_S3_SIGNATURE_VERSION = 's3v4'
-AWS_S3_REGION_NAME = 'eu-north-1'
-AWS_S3_FILE_OVERWRITE = False  # Prevents overwriting files with the same name
-AWS_DEFAULT_ACL = None
-AWS_S3_VERIFY = True
-AWS_S3_ADDRESSING_STYLE = "virtual"  # Helps resolve issues in some regions
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "storages.backends.s3.S3Storage",
+#     },
 
-STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.s3.S3Storage",
-    },
-
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
+#     "staticfiles": {
+#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+#     },
+# }
 
 
-MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
+# MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
 
 
 # Set MEDIA_ROOT to an empty string (not needed for S3)
-MEDIA_ROOT = ''
+# MEDIA_ROOT = ''
 
-
+STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 
 REMITA_API_KEY = "abc12345xyz67890mnopqrstuv"

@@ -126,7 +126,6 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-
 class UserSubscriptionDetailView(generics.RetrieveAPIView):
     queryset = UserSubscription.objects.all()
     serializer_class = UserSubscriptionDetailSerializer

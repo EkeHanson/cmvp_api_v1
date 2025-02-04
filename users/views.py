@@ -28,8 +28,6 @@ from django.utils.timezone import now
 import re
 
 
-
-
 class OrganizationSubscriptionView(APIView):
     permission_classes = [AllowAny]
 
