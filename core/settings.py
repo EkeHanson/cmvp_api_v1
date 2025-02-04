@@ -129,7 +129,7 @@ DEFAULT_FROM_EMAIL = 'support@cmvp.net'
 
 # DEFAULT_WEB_PAGE_BASE_URL = "http://localhost:5173"
 # DEFAULT_WEB_PAGE_BASE_URL = "https://cmvp-project.vercel.app"
-DEFAULT_WEB_PAGE_BASE_URL = "https://cmvp.net/"
+DEFAULT_WEB_PAGE_BASE_URL = "https://cmvp.net"
 
 
 TEMPLATES = [
