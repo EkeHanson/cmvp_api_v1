@@ -240,28 +240,8 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 
-
-# # Amazon S3 Bucket Configuration
-# AWS_ACCESS_KEY_ID = 'AKIATQZCSRTLILAE4NU6'
-# AWS_SECRET_ACCESS_KEY = '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'
-# AWS_STORAGE_BUCKET_NAME = 'test-first-s3-bucket'
-# AWS_S3_SIGNATURE_NAME = 'test-first-s3-bucket'
-# AWS_S3_REGION_NAME = 'eu-north-1'  # e.g., 'us-east-1'
-# AWS_S3_FILE_OVERWRITE = False  # To prevent overwriting files with the same name
-# AWS_DEFAULT_ACL = None         # Ensures proper permissions
-# AWS_S3_VERIFY = True         # Ensures proper permissions
-# # Optional: Use S3 for media files
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# # AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-# # Use S3 for static files
-# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-
-
-
-# Amazon S3 Bucket Configuration
-AWS_ACCESS_KEY_ID = 'AKIAWCYX7YU2UMEWKNM7'
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = 'cmvp-files'
 AWS_S3_SIGNATURE_VERSION = 's3v4'
 AWS_S3_REGION_NAME = 'eu-north-1'
