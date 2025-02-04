@@ -253,6 +253,11 @@ class ResendVerificationEmailView(APIView):
                                 <a href="{verification_link}" style="position: relative; margin: 30px 0px; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 10px 30px; background-color: #FE6601; color: #fff; margin-top: 50px; border-radius: 8px; border:1px solid #FE6601; transition: all 0.3s ease-in-out; text-decoration: none;">Verify Email</a>
                                 <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Or copy and paste this token on the verification page:</p>
                                 <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
+                                 <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
+                                    <h5>Thanks for using our platform</h5>
+                                    <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
+                                    <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
+                                </footer>
                             </div>
                         </div>
                     </body>
@@ -415,7 +420,7 @@ class ResetPasswordView(views.APIView):
         # Generate reset token and UID
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        reset_link = f"https://new-cmvp-site.vercel.app/forgotten_pass_reset/{uid}/{token}/"
+        reset_link = f"https://cmvp.net/forgotten_pass_reset/{uid}/{token}/"
 
         # Prepare email content
         subject = 'Password Reset Request'
@@ -423,13 +428,31 @@ class ResetPasswordView(views.APIView):
         # Use a proper HTML template for the message
         message = f"Please click the following link to reset your password: {reset_link}"
         html_message = f'''
-            <html>
-                <body>
-                    <h3>Please click on the link below to reset your password</h3>
-                    <p><a href="{reset_link}"><strong>Reset Password</strong></a></p>
-                    <p> Note this email will expire in five (5) minutes. </p>
-                </body>
-            </html>
+                <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <title>CMVP Registration Email Verification </title>
+                        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+                    </head>
+                    <body style="margin: 0; padding: 0; font-family: Poppins, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
+                        <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
+                            <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px;">
+                                <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
+                                <h3 style="font-size: 30px; font-weight: 700;">Please click on the link below to reset your password!</h3>
+                                <p style="margin-top: 10px; color:#D8F3DC;"><a href="{reset_link}"><strong>Reset Password</strong></a></p>
+                                
+                                <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Note this email will expire in five (5) minutes.</p>
+
+                                 <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
+                                    <h5>Thanks for using our platform</h5>
+                                    <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
+                                    <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
+                                </footer>
+                            </div>
+                        </div>
+                    </body>
+                </html>
         '''
 
         from_email = settings.DEFAULT_FROM_EMAIL
@@ -483,18 +506,36 @@ def send_contact_email(request):
         if email:
             subject = 'Contact Form Submission'
             message = f'''
+
             <html>
-            <body>
-                <h3>Contact Form Submission</h3>
-                <p><strong>Full Name:</strong> {full_name}</p>
-                <p><strong>Email Address:</strong> {email}</p>
-                <p><strong>Phone Number:</strong> {phone_number}</p>
-                <p><strong>Interest Service:</strong> {interest_service}</p>
-                <p><strong>Message:</strong> {message_body}</p>
-            </body>
-            </html>
+                    <head>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <title>CMVP Registration Email Verification </title>
+                        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+                    </head>
+                    <body style="margin: 0; padding: 0; font-family: Poppins, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
+                        <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
+                            <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px;">
+                                <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
+                                <h3 style="font-size: 30px; font-weight: 700;">Contact Form Submission</h3>
+                                <p style="margin-top: 10px; color:#D8F3DC;">Full Name:</strong> {full_name}</p>
+                                <p style="margin-top: 10px; color:#D8F3DC;"><strong>Phone Number:</strong> {phone_number}</p>
+                                
+                                <p style="color: #6b7280; font-size: 18px; margin-top: 10px;"><strong>Interest Service:</strong> {interest_service}.</p>
+                                <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Message:</strong> {message_body}</p>
+
+                                 <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
+                                    <h5>Thanks for using our platform</h5>
+                                    <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
+                                    <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
+                                </footer>
+                            </div>
+                        </div>
+                    </body>
+                </html>
             '''
-            recipient_list = ['info@prolinaceltd.com', 'enterprise@prolianceltd.com', 'ekenehanson@gmail.com']
+            recipient_list = ['info@prolinaceltd.com', 'enterprise@prolianceltd.com']
 
             from_email = settings.DEFAULT_FROM_EMAIL
 

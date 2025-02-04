@@ -98,6 +98,11 @@ class Organization(AbstractBaseUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone']
 
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     print("File saved to: self.file.url")
+    #     print(f'File saved to: {self.logo.url}')
+    #     print("File saved to: self.file.url")
 
 
     def generate_verification_token(self):

@@ -34,13 +34,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
 
+    'storages',
     #Second Party Apps
     'users',        # Make sure this is included
     'certificates',  # Make sure this is included
     'subscription',  # Make sure this is included
-    # 'analytics',     # Make sure this is included
+    'newsletterSubscription',    
 
-    'storages',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -222,11 +222,16 @@ USE_TZ = True
 
 
 
-STATIC_URL = 'static/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # If using a 'static' folder for development
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Used when collecting static files for deployment
 
-# Default primary key field type
+
+# STATIC_URL = 'static/'
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+# Default primary key fiel d type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -237,23 +242,60 @@ logger.addHandler(logging.StreamHandler())
 
 
 
+# # Amazon S3 Bucket Configuration
+# AWS_ACCESS_KEY_ID = 'AKIATQZCSRTLILAE4NU6'
+# AWS_SECRET_ACCESS_KEY = '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'
+# AWS_STORAGE_BUCKET_NAME = 'test-first-s3-bucket'
+# AWS_S3_SIGNATURE_NAME = 'test-first-s3-bucket'
+# AWS_S3_REGION_NAME = 'eu-north-1'  # e.g., 'us-east-1'
+# AWS_S3_FILE_OVERWRITE = False  # To prevent overwriting files with the same name
+# AWS_DEFAULT_ACL = None         # Ensures proper permissions
+# AWS_S3_VERIFY = True         # Ensures proper permissions
+# # Optional: Use S3 for media files
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# # AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+# # Use S3 for static files
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+
+
+
 # Amazon S3 Bucket Configuration
-AWS_ACCESS_KEY_ID = 'AKIATQZCSRTLILAE4NU6'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'test-first-s3-bucket'
-AWS_S3_SIGNATURE_NAME = 'test-first-s3-bucket'
-AWS_S3_REGION_NAME = 'eu-north-1'  # e.g., 'us-east-1'
-AWS_S3_FILE_OVERWRITE = False  # To prevent overwriting files with the same name
-AWS_DEFAULT_ACL = None         # Ensures proper permissions
-AWS_S3_VERIFY = True         # Ensures proper permissions
-# Optional: Use S3 for media files
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-# Use S3 for static files
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = 'AKIAWCYX7YU2UMEWKNM7'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'cmvp-files'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_REGION_NAME = 'eu-north-1'
+AWS_S3_FILE_OVERWRITE = False  # Prevents overwriting files with the same name
+AWS_DEFAULT_ACL = None
+AWS_S3_VERIFY = True
+AWS_S3_ADDRESSING_STYLE = "virtual"  # Helps resolve issues in some regions
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 
-# Static and Media Files Settings
-# STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
-# MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
+
+
+# Set MEDIA_ROOT to an empty string (not needed for S3)
+MEDIA_ROOT = ''
+
+
+
+
+REMITA_API_KEY = "abc12345xyz67890mnopqrstuv"
+REMITA_MERCHANT_ID = "your_remita_merchant_id_here"
+REMITA_SERVICE_TYPE_ID = "your_remit_service_type_id_here"
+REMITA_BASE_URL = "https://remita.net" 
+
+
+
 
