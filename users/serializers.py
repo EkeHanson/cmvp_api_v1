@@ -35,34 +35,6 @@ class OrganizationSerializer(serializers.ModelSerializer):
         return user
 
 
-# class OrganizationSerializer(serializers.ModelSerializer):
-#     role = serializers.CharField(default='sub_admin')
-#     password = serializers.CharField(write_only=True)
-#     # trial_start_date = serializers.DateTimeField(read_only=True)  # Read-only as it is set automatically
-#     # trial_end_date = serializers.DateTimeField(read_only=True)  # Read-only as it is set automatically
-
-#     class Meta:
-#         model = Organization
-#         fields = "__all__"
-
-#     def create(self, validated_data):
-#         # Remove the password from the validated data
-#         password = validated_data.pop('password')
-        
-#         # Set trial dates
-#         validated_data['trial_start_date'] = now()
-#         validated_data['trial_end_date'] = now() + timedelta(days=30)
-
-#         # Create the user without the password initially
-#         user = Organization(**validated_data)
-        
-#         # Hash the password using set_password
-#         user.set_password(password)
-        
-#         # Save the user instance
-#         user.save()
-        
-#         return user
 
   
 class LoginSerializer(serializers.Serializer):
@@ -112,4 +84,4 @@ class OrganizationSubscriptionSerializer(serializers.ModelSerializer):
             if start_date and end_date:
                 duration = end_date - start_date
                 return duration.days
-        return "Using Free Plan"
+        return "Free Trial"
