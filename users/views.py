@@ -420,7 +420,7 @@ class ResetPasswordView(views.APIView):
         # Generate reset token and UID
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        reset_link = f"https://cmvp.net/forgotten_pass_reset/{uid}/{token}/"
+        reset_link = f"{settings.DEFAULT_WEB_PAGE_BASE_URL}/forgotten_pass_reset/{uid}/{token}/"
 
         # Prepare email content
         subject = 'Password Reset Request'
