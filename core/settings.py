@@ -155,25 +155,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'cmvp_db_c26x',
-#         'USER': 'cmvp_db_c26x_user',
-#         'PASSWORD': 'LzRpuDeBZ0SeWaEVzLN61u3IdADsaql3',
-#         'HOST': 'dpg-cucfe7rv2p9s73d71pc0-a.oregon-postgres.render.com',
-#         'PORT': '5432',  # Default PostgreSQL port
-#     }
-# }
-
-
 
 DATABASES = {
     'default': {
@@ -185,8 +166,6 @@ DATABASES = {
         'PORT': '5432', 
     }
 }
-
-
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
