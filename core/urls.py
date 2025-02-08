@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path('api/accounts/auth/', include('users.urls')), 
+    
     path('api/subscription/auth/', include('subscription.urls')), 
     
     path('api/newslettersubscription/auth/', include('newsletterSubscription.urls')), 

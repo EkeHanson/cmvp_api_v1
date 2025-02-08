@@ -22,20 +22,69 @@ from subscription.models import UserSubscription
 import base64
 from django.conf import settings
 from django.core.files.base import ContentFile
-import africastalking
+from rest_framework.pagination import PageNumberPagination
 from twilio.rest import Client
 from django.utils.timezone import now
 import re
+class OrganizationPagination(PageNumberPagination):
+    page_size = 10  # 10 results per page
+    page_size_query_param = 'page_size'
+    max_page_size = 1000  # Maximum page size is 1000
 
 
 class OrganizationSubscriptionView(APIView):
     permission_classes = [AllowAny]
+    pagination_class = OrganizationPagination
 
+    # def get(self, request, *args, **kwargs):
+    #     organizations = Organization.objects.all().order_by('id')
+    #     data = []
+
+    #     for org in organizations:
+    #         # Check if the organization has an active subscription
+    #         subscription = UserSubscription.objects.filter(user=org, is_active=True).first()
+
+    #         if subscription:
+    #             subscription_data = {
+    #                 'id': org.id,
+    #                 'name': org.name,
+    #                 'phone': org.phone,
+    #                 'email': org.email,
+    #                 'address': org.address,
+    #                 'date_joined': org.date_joined,
+    #                 'subscription_plan_name': subscription.subscription_plan.name,
+    #                 'subscription_start_time': subscription.start_date,
+    #                 'subscription_end_time': subscription.end_date,
+    #                 'subscription_duration': (subscription.end_date - subscription.start_date).days,
+    #                 'num_certificates_uploaded': org.num_certificates_uploaded,
+    #                 'unique_subscriber_id': org.unique_subscriber_id
+    #             }
+    #         else:
+    #             subscription_data = {
+    #                 'id': org.id,
+    #                 'name': org.name,
+    #                 'phone': org.phone,
+    #                 'email': org.email,
+    #                 'address': org.address,
+    #                 'date_joined': org.date_joined,
+    #                 'subscription_plan_name': ' 30-Day Trial',
+    #                 'subscription_start_time': org.trial_start_date,
+    #                 'subscription_end_time': org.trial_end_date,
+    #                 'subscription_duration': (org.trial_end_date - org.trial_start_date).days,
+    #                 'num_certificates_uploaded': org.num_certificates_uploaded,
+    #                 'unique_subscriber_id': org.unique_subscriber_id
+    #             }
+
+    #         data.append(subscription_data)
+
+    #     return Response(data)
     def get(self, request, *args, **kwargs):
         organizations = Organization.objects.all().order_by('id')
-        data = []
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(organizations, request)
 
-        for org in organizations:
+        data = []
+        for org in result_page:
             # Check if the organization has an active subscription
             subscription = UserSubscription.objects.filter(user=org, is_active=True).first()
 
@@ -62,7 +111,7 @@ class OrganizationSubscriptionView(APIView):
                     'email': org.email,
                     'address': org.address,
                     'date_joined': org.date_joined,
-                    'subscription_plan_name': ' 30-Day Trial',
+                    'subscription_plan_name': '30-Day Trial',
                     'subscription_start_time': org.trial_start_date,
                     'subscription_end_time': org.trial_end_date,
                     'subscription_duration': (org.trial_end_date - org.trial_start_date).days,
@@ -70,20 +119,9 @@ class OrganizationSubscriptionView(APIView):
                     'unique_subscriber_id': org.unique_subscriber_id
                 }
 
-            # Convert logo to base64 if it exists
-            # if org.logo:
-            #     try:
-            #         logo_content = org.logo.read()
-            #         subscription_data['logo'] = base64.b64encode(logo_content).decode('utf-8')
-            #     except Exception as e:
-            #         subscription_data['logo'] = None
-            # else:
-            #     subscription_data['logo'] = None
-
             data.append(subscription_data)
 
-        return Response(data)
-
+        return paginator.get_paginated_response(data)
 
 class GetOrganizationBySubscriberIdView(APIView):
     """

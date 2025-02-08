@@ -31,9 +31,9 @@ class CertificateCreateView(viewsets.ModelViewSet):
    
     def create(self, request, *args, **kwargs):
 
-        print(" request.data")
-        print( request.data)
-        print(" request.data")
+        # print(" request.data")
+        # print( request.data)
+        # print(" request.data")
 
         unique_subscriber_id = request.data.get('organization')
         
