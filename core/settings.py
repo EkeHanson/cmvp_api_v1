@@ -248,11 +248,4 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 
-REMITA_API_KEY = "abc12345xyz67890mnopqrstuv"
-REMITA_MERCHANT_ID = "your_remita_merchant_id_here"
-REMITA_SERVICE_TYPE_ID = "your_remit_service_type_id_here"
-REMITA_BASE_URL = "https://remita.net" 
-
-
-
 
