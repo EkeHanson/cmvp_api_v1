@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
 
-    # 'storages',
+    'storages',
     #Second Party Apps
     'users',        # Make sure this is included
     'certificates',  # Make sure this is included
@@ -162,17 +162,30 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'cmvp_db_c26x',
+#         'USER': 'cmvp_db_c26x_user',
+#         'PASSWORD': 'LzRpuDeBZ0SeWaEVzLN61u3IdADsaql3',
+#         'HOST': 'dpg-cucfe7rv2p9s73d71pc0-a.oregon-postgres.render.com',
+#         'PORT': '5432',  # Default PostgreSQL port
+#     }
+# }
+
+
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvp_db_c26x',
-        'USER': 'cmvp_db_c26x_user',
-        'PASSWORD': 'LzRpuDeBZ0SeWaEVzLN61u3IdADsaql3',
-        'HOST': 'dpg-cucfe7rv2p9s73d71pc0-a.oregon-postgres.render.com',
-        'PORT': '5432',  # Default PostgreSQL port
+        'NAME': 'cmvp_test_1',
+        'USER': 'ekenehanson',
+        'PASSWORD': '123qwerty123',
+        'HOST': 'database-1.c5wy6gis8pov.us-east-1.rds.amazonaws.com',
+        'PORT': '5432', 
     }
 }
+
 
 
 SIMPLE_JWT = {
@@ -221,9 +234,9 @@ USE_TZ = True
 
 
 
-# STATIC_URL = 'static/'
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+STATIC_URL = 'static/'
+MEDIA_URL = 'media/'
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Default primary key fiel d type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -245,15 +258,27 @@ logger.addHandler(logging.StreamHandler())
 # AWS_S3_VERIFY = True
 # AWS_S3_ADDRESSING_STYLE = "virtual"  # Helps resolve issues in some regions
 
-# STORAGES = {
-#     "default": {
-#         "BACKEND": "storages.backends.s3.S3Storage",
-#     },
 
-#     "staticfiles": {
-#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-#     },
-# }
+
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = 'cmvp-files'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_REGION_NAME = 'eu-north-1'
+AWS_S3_FILE_OVERWRITE = False  # Prevents overwriting files with the same name
+AWS_DEFAULT_ACL = None
+AWS_S3_VERIFY = True
+AWS_S3_ADDRESSING_STYLE = "virtual"  # Helps resolve issues in some regions
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 
 # MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
@@ -262,9 +287,9 @@ logger.addHandler(logging.StreamHandler())
 # Set MEDIA_ROOT to an empty string (not needed for S3)
 # MEDIA_ROOT = ''
 
-STATIC_URL = 'static/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+# STATIC_URL = 'static/'
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 
 REMITA_API_KEY = "abc12345xyz67890mnopqrstuv"
