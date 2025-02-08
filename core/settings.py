@@ -235,38 +235,6 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 
-# AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-# AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-# AWS_STORAGE_BUCKET_NAME = 'cmvp-files'
-# AWS_S3_SIGNATURE_VERSION = 's3v4'
-# AWS_S3_REGION_NAME = 'eu-north-1'
-# AWS_S3_FILE_OVERWRITE = False  # Prevents overwriting files with the same name
-# AWS_DEFAULT_ACL = None
-# AWS_S3_VERIFY = True
-# AWS_S3_ADDRESSING_STYLE = "virtual"  # Helps resolve issues in some regions
-
-
-
-
-# AWS_ACCESS_KEY_ID = "AKIAWCYX7YU26NA3R2FJ"
-# AWS_SECRET_ACCESS_KEY = "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"
-# AWS_STORAGE_BUCKET_NAME = 'cmvp-files'
-# AWS_S3_SIGNATURE_VERSION = 's3v4'
-# AWS_S3_REGION_NAME = 'eu-north-1'
-# AWS_S3_FILE_OVERWRITE = False  # Prevents overwriting files with the same name
-# AWS_DEFAULT_ACL = None
-# AWS_S3_VERIFY = True
-# AWS_S3_ADDRESSING_STYLE = "virtual"  # Helps resolve issues in some regions
-
-# STORAGES = {
-#     "default": {
-#         "BACKEND": "storages.backends.s3.S3Storage",
-#     },
-
-#     "staticfiles": {
-#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-#     },
-# }
 
 
 # MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
