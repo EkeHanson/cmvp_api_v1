@@ -26,58 +26,78 @@ from rest_framework.pagination import PageNumberPagination
 from twilio.rest import Client
 from django.utils.timezone import now
 import re
+from django.db.models import Q
+
 class OrganizationPagination(PageNumberPagination):
     page_size = 10  # 10 results per page
     page_size_query_param = 'page_size'
     max_page_size = 1000  # Maximum page size is 1000
 
 
+class OrganizationSearchView(APIView):
+    print("OrganizationSearchView called!")  # Debugging
+    permission_classes = [AllowAny]
+    pagination_class = OrganizationPagination
+
+    def get(self, request, *args, **kwargs):
+        # Get the search query parameter (e.g., ?name=OrganizationName)
+        search_query = request.query_params.get('name', '').strip()
+
+        # Filter organizations by name (case-insensitive)
+        organizations = Organization.objects.filter(
+            Q(name__icontains=search_query)
+        ).order_by('id')
+
+        # Paginate the results
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(organizations, request)
+
+        data = []
+        for org in result_page:
+            # Check if the organization has an active subscription
+            subscription = UserSubscription.objects.filter(user=org, is_active=True).first()
+
+            if subscription:
+                subscription_data = {
+                    'id': org.id,
+                    'name': org.name,
+                    'phone': org.phone,
+                    'email': org.email,
+                    'is_active': org.is_active,
+                    'address': org.address,
+                    'date_joined': org.date_joined,
+                    'subscription_plan_name': subscription.subscription_plan.name,
+                    'subscription_start_time': subscription.start_date,
+                    'subscription_end_time': subscription.end_date,
+                    'subscription_duration': (subscription.end_date - subscription.start_date).days,
+                    'num_certificates_uploaded': org.num_certificates_uploaded,
+                    'unique_subscriber_id': org.unique_subscriber_id
+                }
+            else:
+                subscription_data = {
+                    'id': org.id,
+                    'name': org.name,
+                    'phone': org.phone,
+                    'email': org.email,
+                    'is_active': org.is_active,
+                    'address': org.address,
+                    'date_joined': org.date_joined,
+                    'subscription_plan_name': '30-Day Trial',
+                    'subscription_start_time': org.trial_start_date,
+                    'subscription_end_time': org.trial_end_date,
+                    'subscription_duration': (org.trial_end_date - org.trial_start_date).days,
+                    'num_certificates_uploaded': org.num_certificates_uploaded,
+                    'unique_subscriber_id': org.unique_subscriber_id
+                }
+
+            data.append(subscription_data)
+
+        return paginator.get_paginated_response(data)
+    
 class OrganizationSubscriptionView(APIView):
     permission_classes = [AllowAny]
     pagination_class = OrganizationPagination
 
-    # def get(self, request, *args, **kwargs):
-    #     organizations = Organization.objects.all().order_by('id')
-    #     data = []
-
-    #     for org in organizations:
-    #         # Check if the organization has an active subscription
-    #         subscription = UserSubscription.objects.filter(user=org, is_active=True).first()
-
-    #         if subscription:
-    #             subscription_data = {
-    #                 'id': org.id,
-    #                 'name': org.name,
-    #                 'phone': org.phone,
-    #                 'email': org.email,
-    #                 'address': org.address,
-    #                 'date_joined': org.date_joined,
-    #                 'subscription_plan_name': subscription.subscription_plan.name,
-    #                 'subscription_start_time': subscription.start_date,
-    #                 'subscription_end_time': subscription.end_date,
-    #                 'subscription_duration': (subscription.end_date - subscription.start_date).days,
-    #                 'num_certificates_uploaded': org.num_certificates_uploaded,
-    #                 'unique_subscriber_id': org.unique_subscriber_id
-    #             }
-    #         else:
-    #             subscription_data = {
-    #                 'id': org.id,
-    #                 'name': org.name,
-    #                 'phone': org.phone,
-    #                 'email': org.email,
-    #                 'address': org.address,
-    #                 'date_joined': org.date_joined,
-    #                 'subscription_plan_name': ' 30-Day Trial',
-    #                 'subscription_start_time': org.trial_start_date,
-    #                 'subscription_end_time': org.trial_end_date,
-    #                 'subscription_duration': (org.trial_end_date - org.trial_start_date).days,
-    #                 'num_certificates_uploaded': org.num_certificates_uploaded,
-    #                 'unique_subscriber_id': org.unique_subscriber_id
-    #             }
-
-    #         data.append(subscription_data)
-
-    #     return Response(data)
     def get(self, request, *args, **kwargs):
         organizations = Organization.objects.all().order_by('id')
         paginator = self.pagination_class()
@@ -94,6 +114,7 @@ class OrganizationSubscriptionView(APIView):
                     'name': org.name,
                     'phone': org.phone,
                     'email': org.email,
+                    'is_active': org.is_active,
                     'address': org.address,
                     'date_joined': org.date_joined,
                     'subscription_plan_name': subscription.subscription_plan.name,
@@ -109,6 +130,7 @@ class OrganizationSubscriptionView(APIView):
                     'name': org.name,
                     'phone': org.phone,
                     'email': org.email,
+                    'is_active': org.is_active,
                     'address': org.address,
                     'date_joined': org.date_joined,
                     'subscription_plan_name': '30-Day Trial',
@@ -246,7 +268,6 @@ class VerifyEmailView(APIView):
             }, status=status.HTTP_200_OK)
 
         return Response({"error": "Invalid or expired token"}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class ResendVerificationEmailView(APIView):

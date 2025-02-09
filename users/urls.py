@@ -9,7 +9,7 @@ from .views import (
     BackgroundImageByOrganizationView,
     SetSelectedBackgroundImageView,
     GetSelectedBackgroundImageView,
-    OrganizationSubscriptionView, send_sms, VerifyEmailView, ResendVerificationEmailView,
+    OrganizationSubscriptionView, send_sms, VerifyEmailView, ResendVerificationEmailView, OrganizationSearchView
 )
 
 from django.urls import path, include
@@ -39,6 +39,9 @@ urlpatterns = [
     path('organization/background_image/selected/<str:unique_subscriber_id>/', GetSelectedBackgroundImageView.as_view(), name='get-selected-background-image'),
 
     path('subscription/organizations/subscriptions/', OrganizationSubscriptionView.as_view(), name='organization-subscriptions'),
+
+        # New route for searching organizations by name
+    path('search/organizations/searching/', OrganizationSearchView.as_view(), name='organization-search'),
 
     # New email verification endpoint
     path('api/verify-email/', VerifyEmailView.as_view(), name='verify-email'),
