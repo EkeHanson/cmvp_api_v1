@@ -18,7 +18,6 @@ from .models import SubscriptionPlan, UserSubscription
 from users.models import Organization
 from .serializers import SubscriptionPlanSerializer, UserSubscriptionSerializer, UserSubscriptionDetailSerializer
 
-# CRUD View for Subscription Plans
 
 class SubscriptionPlanView(ModelViewSet):
     permission_classes = [AllowAny]
@@ -96,24 +95,13 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
             print(error_message)
             return Response({'detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
-        # try:
-        #     subscription_plan = SubscriptionPlan.objects.get(unique_subscription_plan_id=subscription_plan_uuid)
-        # except SubscriptionPlan.DoesNotExist:
-        #     error_message = f"Subscription plan with UUID {subscription_plan_uuid} does not exist."
-        #     print(error_message)
-        #     return Response({'detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
             subscription_plan = SubscriptionPlan.objects.get(unique_subscription_plan_id=subscription_plan_uuid)
         except SubscriptionPlan.DoesNotExist:
             error_message = "The selected subscription plan does not exist."
             return Response({'detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
-        # serializer.save(user=user, subscription_plan=subscription_plan)
-        # return Response(serializer.data, status=status.HTTP_201_CREATED)
-                # Save the new subscription
         subscription = serializer.save(user=user, subscription_plan=subscription_plan)
-
 
         # Update the organization's is_subscribed field to True
         user.is_subscribed = True
@@ -121,6 +109,7 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
 
         # Ensure is_active is updated after saving
         subscription.is_active = True
+        subscription.subscribing_organization_name = user.name
         subscription.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -29,6 +29,7 @@ class UserSubscription(models.Model):
     end_date = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
     transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    subscribing_organization_name = models.CharField(max_length=100, null=True, blank=True)
     
     # New fields to record the amount and duration
     subscribed_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Amount paid by the user

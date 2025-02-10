@@ -7,14 +7,6 @@ import random
 
 
 class CustomUserManager(BaseUserManager):
-    # def authenticate(self, email, password):
-    #     try:
-    #         user = self.get(email=email)
-    #         if user.check_password(password):
-    #             return user
-    #     except self.model.DoesNotExist:
-    #         return None
-
 
     def authenticate(self, email, password):
         try:
