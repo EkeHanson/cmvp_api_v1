@@ -28,22 +28,97 @@ class CertificateCreateView(viewsets.ModelViewSet):
     permission_classes = [AllowAny]  # Consider changing to IsAuthenticated if necessary
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
 
-   
+    
+    # def create(self, request, *args, **kwargs):
+    #     unique_subscriber_id = request.data.get('organization')
+    #     unique_certificate_category_id = request.data.get('certificate_category')
+
+    #     data = request.data.copy()
+    #     if 'certificate_category' in data and isinstance(data['certificate_category'], list):
+    #         data['certificate_category'] = data['certificate_category'][0]
+
+    #     if not unique_subscriber_id:
+    #         return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    #     if not unique_certificate_category_id:
+    #         return Response({'error': 'Certificate Category ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    #     organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
+    #     certificate_category = get_object_or_404(CertificateCategory, unique_certificate_category_id=unique_certificate_category_id)
+    #     current_time = now()
+
+    #     # Check if the trial period has ended and the organization is not subscribed
+    #     if current_time > organization.trial_end_date and not organization.is_subscribed:
+    #         return Response({'error': 'Subscription is required to upload certificates after trial period.'}, status=status.HTTP_403_FORBIDDEN)
+    
+    #     # Check if the organization is activated
+    #     if not organization.is_active:
+    #         return Response({'error': 'You have not been activated to use our service, Please contact support@cmvp.com'}, status=status.HTTP_403_FORBIDDEN)
+
+    #     # Fetch the active subscription by ensuring the current date is within the subscription period
+    #     active_subscription = UserSubscription.objects.filter(
+    #         user=organization,
+    #         start_date__lte=current_time.date(),
+    #         end_date__gte=current_time.date()
+    #     ).first()
+
+    #     num_certificates_uploaded_today = Certificate.objects.filter(
+    #         organization=organization,
+    #         created_at__date=current_time.date()
+    #     ).count()
+
+    #     if organization.is_subscribed:
+    #         if not active_subscription and current_time > active_subscription.end_date:
+    #             return Response({'error': 'No active subscription. Please renew your subscription to upload certificates.'}, status=status.HTTP_403_FORBIDDEN)
+
+
+
+    #     if active_subscription:
+    #         subscription_plan = active_subscription.subscription_plan
+    #         features = subscription_plan.features if subscription_plan else {}
+
+    #         # Convert num_daily_certificate_upload to an integer (or use infinity if not defined)
+    #         num_daily_certificate_upload = int(features.get('num_daily_certificate_upload', float('inf')))
+
+
+    #         start_date = datetime.strptime(active_subscription.start_date, "%Y-%m-%d").date()
+    #         if trial_end_date_str.endswith("Z"):
+    #             trial_end_date_str = organization.trial_end_date[:-1] + "+00:00"
+    #         trial_end_date = datetime.fromisoformat(trial_end_date_str).date()
+    #         current_date = datetime.now().date()
+
+    #         if start_date == trial_end_date == current_date:
+    #             if num_certificates_uploaded_today - 5 >= num_daily_certificate_upload:
+    #                 return Response({'error': 'Daily certificate upload limit reached.'}, status=status.HTTP_403_FORBIDDEN)
+                
+            
+            
+    #     elif current_time < organization.trial_end_date:
+    #         # If no active subscription but still in trial period, enforce trial limits
+    #         if num_certificates_uploaded_today >= 5:
+    #             return Response({'error': '30 Day Trial Daily certificate upload limit reached.'}, status=status.HTTP_403_FORBIDDEN)
+
+    #     # Continue with certificate creation if subscription is valid
+    #     serializer = self.get_serializer(data=request.data)
+    #     if serializer.is_valid():
+    #         with transaction.atomic():
+    #             serializer.save()
+
+    #             # Increment num_certificates_uploaded field
+    #             organization.num_certificates_uploaded = models.F('num_certificates_uploaded') + 1
+    #             organization.save(update_fields=['num_certificates_uploaded'])
+
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def create(self, request, *args, **kwargs):
-
-        # print(" request.data")
-        # print( request.data)
-        # print(" request.data")
-
         unique_subscriber_id = request.data.get('organization')
-        
-        
         unique_certificate_category_id = request.data.get('certificate_category')
 
         data = request.data.copy()
         if 'certificate_category' in data and isinstance(data['certificate_category'], list):
             data['certificate_category'] = data['certificate_category'][0]
-            
 
         if not unique_subscriber_id:
             return Response({'error': 'Organization ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -52,152 +127,181 @@ class CertificateCreateView(viewsets.ModelViewSet):
             return Response({'error': 'Certificate Category ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         organization = get_object_or_404(Organization, unique_subscriber_id=unique_subscriber_id)
-
         certificate_category = get_object_or_404(CertificateCategory, unique_certificate_category_id=unique_certificate_category_id)
         current_time = now()
 
         # Check if the trial period has ended and the organization is not subscribed
         if current_time > organization.trial_end_date and not organization.is_subscribed:
             return Response({'error': 'Subscription is required to upload certificates after trial period.'}, status=status.HTTP_403_FORBIDDEN)
-       
+        
         # Check if the organization is activated
-        if not organization.is_active:
-            return Response({'error': 'You have not been activated to use our service, Please contact support@cmvp.com'}, status=status.HTTP_403_FORBIDDEN)
+        if not organization.is_verified:
+            return Response({'error': 'You have not been activated to use our service, Please contact support@cmvp.com'},
+                            status=status.HTTP_403_FORBIDDEN)
 
-        # Fetch the active subscription
+        # Fetch the active subscription by ensuring the current date is within the subscription period
+        # AND that the subscription is marked as active.
         active_subscription = UserSubscription.objects.filter(
             user=organization,
+            is_active=True,  # Only include subscriptions that are active.
+            start_date__lte=current_time.date(),
             end_date__gte=current_time.date()
         ).first()
 
-        if not active_subscription and current_time > organization.trial_end_date:
-            return Response({'error': 'No active subscription. Please renew your subscription to upload certificates.'}, status=status.HTTP_403_FORBIDDEN)
+        # Optionally, log or display the active subscription details.
+        if active_subscription:
+            print("Active subscription found:", active_subscription)
+        else:
+            print("No active subscription found.")
 
         num_certificates_uploaded_today = Certificate.objects.filter(
             organization=organization,
             created_at__date=current_time.date()
         ).count()
 
+        # If the organization is marked as subscribed but no active subscription is found,
+        # then disallow certificate uploads.
+        if organization.is_subscribed:
+            if not active_subscription:
+                return Response({'error': 'No active subscription. Please renew your subscription to upload certificates.'},
+                                status=status.HTTP_403_FORBIDDEN)
+
         if active_subscription:
             subscription_plan = active_subscription.subscription_plan
             features = subscription_plan.features if subscription_plan else {}
-
-            # Convert num_daily_certificate_upload to an integer
+            # Convert num_daily_certificate_upload to an integer (or use infinity if not defined)
             num_daily_certificate_upload = int(features.get('num_daily_certificate_upload', float('inf')))
 
-            if (num_certificates_uploaded_today - 5) >= (num_daily_certificate_upload):
-                return Response({'error': 'Daily certificate upload limit reached.'}, status=status.HTTP_403_FORBIDDEN)
-            
-        elif current_time < organization.trial_end_date:
-            if num_certificates_uploaded_today >= 30:
-                return Response({'error': '30 Day Trial Daily certificate upload limit reached.'}, status=status.HTTP_403_FORBIDDEN)
+            # If these date fields are stored as strings, convert them to date objects.
+            # Otherwise, if they are already date fields, you can simply use them.
+            start_date = (
+                datetime.strptime(active_subscription.start_date, "%Y-%m-%d").date()
+                if isinstance(active_subscription.start_date, str)
+                else active_subscription.start_date
+            )
+            trial_end_date = (
+                datetime.strptime(str(organization.trial_end_date)[:10], "%Y-%m-%d").date()
+                if isinstance(organization.trial_end_date, str)
+                else organization.trial_end_date
+            )
+            current_date = datetime.now().date()
 
-        # Continue with certificate creation if subscription is valid
+            # Example: if all three dates (start_date, trial_end_date, current_date) are equal,
+            # then enforce a particular daily upload limit.
+            if start_date == trial_end_date == current_date:
+                if num_certificates_uploaded_today - 5 >= num_daily_certificate_upload:
+                    return Response({'error': 'Daily certificate upload limit reached.'},
+                                    status=status.HTTP_403_FORBIDDEN)
+        elif current_time < organization.trial_end_date:
+            # If there is no active subscription but the trial period is still ongoing,
+            # enforce the trial upload limits.
+            if num_certificates_uploaded_today >= 5:
+                return Response({'error': '8 Day Trial Daily certificate upload limit reached.'},
+                                status=status.HTTP_403_FORBIDDEN)
+
+        # Continue with certificate creation if all validations pass.
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             with transaction.atomic():
                 serializer.save()
-
                 # Increment num_certificates_uploaded field
                 organization.num_certificates_uploaded = models.F('num_certificates_uploaded') + 1
                 organization.save(update_fields=['num_certificates_uploaded'])
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # print("serializer.errors")
-        # print(serializer.errors)
-        # print("serializer.errors")
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-    def partial_update(self, request, *args, **kwargs):
-        # Retrieve the certificate instance to be updated
-
-        # print("Request.data")
-        # print(request.data)
-        # print("Request.data")
-
-        certificate = self.get_object()
-        organization = certificate.organization
-        certificate_category = certificate.certificate_category
-        
-        # Store the previous values to compare them later
-        old_data = CertificateSerializer(certificate).data
-        old_data_category = CertificateCategorySerializer(certificate_category).data  # Corrected this line
-
-        # Validate and update the certificate instance
-        serializer = self.get_serializer(certificate, data=request.data, partial=True)
-        if serializer.is_valid():
-            # Save the updated certificate
-            updated_certificate = serializer.save()
-
-            # Send email notification if there are any changes
-            self.notify_organization_of_changes(organization, old_data, CertificateSerializer(updated_certificate).data)
-
-            return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+        def partial_update(self, request, *args, **kwargs):
+            # Retrieve the certificate instance to be updated
 
-    def notify_organization_of_changes(self, organization, old_data, new_data):
-        """
-        Sends an email notification to the organization about the updated certificate details.
-        """
-        # Compare old and new data to find the changes
-        changes = []
-        for field, old_value in old_data.items():
-            new_value = new_data.get(field)
-            if old_value != new_value:
-                changes.append(f"{field.capitalize()}: {old_value} → {new_value}")
+            # print("Request.data")
+            # print(request.data)
+            # print("Request.data")
 
-        if changes:
-            subject = f"Certificate Updated: {new_data.get('certificate_id')}"
-            message = f"""
+            certificate = self.get_object()
+            organization = certificate.organization
+            certificate_category = certificate.certificate_category
+            
+            # Store the previous values to compare them later
+            old_data = CertificateSerializer(certificate).data
+            old_data_category = CertificateCategorySerializer(certificate_category).data  # Corrected this line
+
+            # Validate and update the certificate instance
+            serializer = self.get_serializer(certificate, data=request.data, partial=True)
+            if serializer.is_valid():
+                # Save the updated certificate
+                updated_certificate = serializer.save()
+
+                # Send email notification if there are any changes
+                self.notify_organization_of_changes(organization, old_data, CertificateSerializer(updated_certificate).data)
+
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-            <html>
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <title>Certificate Edit Notification</title>
-            </head>
-            <body style="margin: 0; padding: 0; font-family: Poppins,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
-                <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
-                    <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px; padding-bottom: 0px !important;">
-                        <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
-                        <h3 style="font-size: 30px; font-weight: 700;">Hello {organization.name},</h3>
-                        <p style="margin-top: 10px; color:#D8F3DC;">The following certificate has been updated:</p>
-                        <ul style="margin-top: 15px; list-style: none; padding: 0;">
-                            <li style="margin-top: 10px;"><strong>Certificate ID:</strong> {new_data.get('certificate_id')}</li>
-                            <li style="margin-top: 10px;"><strong>Updated Fields:</strong></li>
-                            <ul style="margin-top: 10px; list-style: none; padding: 0;">
-                                {"".join([f"<li style='margin-top: 10px;'>{change}</li>" for change in changes])}
-                            </ul>
-                        </ul>
-                        <p style="margin-top: 10px; color:#D8F3DC;">If you did not request these changes, please contact support immediately.</p>
-                        <p style="margin-top: 10px; color:#D8F3DC;">Best regards,</p>
-                        <p style="margin-top: 10px; color:#D8F3DC;">CMVP Tech Support Team</p>
-                        <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1); text-align: center;">
-                            <h5 style="margin: 0; padding: 0; font-size: 18px;">Thank you for using our platform</h5>
-                            <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
-                            <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
-                        </footer>
-                    </div>
-                </div>
-            </body>
-            </html>
+
+        def notify_organization_of_changes(self, organization, old_data, new_data):
             """
-            from_email = settings.DEFAULT_FROM_EMAIL  # Replace with your sender email
-            recipient_list = [organization.email]
+            Sends an email notification to the organization about the updated certificate details.
+            """
+            # Compare old and new data to find the changes
+            changes = []
+            for field, old_value in old_data.items():
+                new_value = new_data.get(field)
+                if old_value != new_value:
+                    changes.append(f"{field.capitalize()}: {old_value} → {new_value}")
 
-            send_mail(
-                subject,
-                '',
-                from_email,
-                recipient_list,
-                fail_silently=False,
-                html_message=message
-            )
+            if changes:
+                subject = f"Certificate Updated: {new_data.get('certificate_id')}"
+                message = f"""
+
+
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>Certificate Edit Notification</title>
+                </head>
+                <body style="margin: 0; padding: 0; font-family: Poppins,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif; font-size: 15px; font-weight: 400; line-height: 1.5; width: 100%; background: #081C15; color: #fff; overflow-x: hidden; min-height: 100vh; z-index: 1;">
+                    <div style="position: relative; width: 100%; height: auto; min-height: 100%; display: flex; justify-content: center;">
+                        <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px; padding-bottom: 0px !important;">
+                            <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
+                            <h3 style="font-size: 30px; font-weight: 700;">Hello {organization.name},</h3>
+                            <p style="margin-top: 10px; color:#D8F3DC;">The following certificate has been updated:</p>
+                            <ul style="margin-top: 15px; list-style: none; padding: 0;">
+                                <li style="margin-top: 10px;"><strong>Certificate ID:</strong> {new_data.get('certificate_id')}</li>
+                                <li style="margin-top: 10px;"><strong>Updated Fields:</strong></li>
+                                <ul style="margin-top: 10px; list-style: none; padding: 0;">
+                                    {"".join([f"<li style='margin-top: 10px;'>{change}</li>" for change in changes])}
+                                </ul>
+                            </ul>
+                            <p style="margin-top: 10px; color:#D8F3DC;">If you did not request these changes, please contact support immediately.</p>
+                            <p style="margin-top: 10px; color:#D8F3DC;">Best regards,</p>
+                            <p style="margin-top: 10px; color:#D8F3DC;">CMVP Tech Support Team</p>
+                            <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1); text-align: center;">
+                                <h5 style="margin: 0; padding: 0; font-size: 18px;">Thank you for using our platform</h5>
+                                <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
+                                <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
+                            </footer>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """
+                from_email = settings.DEFAULT_FROM_EMAIL  # Replace with your sender email
+                recipient_list = [organization.email]
+
+                send_mail(
+                    subject,
+                    '',
+                    from_email,
+                    recipient_list,
+                    fail_silently=False,
+                    html_message=message
+                )
 
 
 

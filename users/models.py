@@ -53,7 +53,7 @@ class Organization(AbstractBaseUser):
     #30 DAY FREE TRIAL AFTER ACCOUNT CREATION FIELDS STARTS HERE
 
     trial_start_date = models.DateTimeField(auto_now_add=True)
-    trial_end_date = models.DateTimeField(default=now() + timedelta(days=15))
+    trial_end_date = models.DateTimeField(default=now() + timedelta(days=8))
     is_subscribed = models.BooleanField(default=False)
 
     

@@ -3,7 +3,7 @@ from datetime import timedelta
 from rest_framework import serializers
 from django.utils.timezone import now
 from .models import SubscriptionPlan, UserSubscription
-from datetime import datetime, timedelta  # Import datetime here
+import datetime  
 from dateutil.relativedelta import relativedelta
 
 
@@ -26,6 +26,7 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
 
 
 class UserSubscriptionSerializer(serializers.ModelSerializer):
+    subscriptionPlan_name = serializers.SerializerMethodField()
     class Meta:
         model = UserSubscription
         fields = '__all__'
@@ -35,9 +36,13 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
             'subscribed_duration': {'required': True}  # Required, as it determines the subscription length
         }
 
+    def get_subscriptionPlan_name(self, obj):
+        return obj.subscription_plan.name if obj.subscription_plan else None
+    
+
     def validate(self, data):
         # Ensure subscribed_duration is provided
-        if 'subscribed_duration' not in data:
+        if self.instance is None and 'subscribed_duration' not in data:
             raise serializers.ValidationError("Subscribed duration is required.")
         
         # Convert start_date and end_date to date objects if they are datetime
@@ -45,6 +50,8 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
             data['start_date'] = data['start_date'].date()
         if 'end_date' in data and isinstance(data['end_date'], datetime.datetime):
             data['end_date'] = data['end_date'].date()
+
+
         return data
 
     def create(self, validated_data):

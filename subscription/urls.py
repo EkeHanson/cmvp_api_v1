@@ -1,7 +1,7 @@
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import SubscriptionPlanView, UserSubscriptionViewSet, payment_confirmation, UserSubscriptionDetailView
+from .views import SubscriptionPlanView, UserSubscriptionViewSet, payment_confirmation, UserSubscriptionListView, UserSubscriptionDetailView
 
 router = DefaultRouter()
 router.register(r'subscription-plans', SubscriptionPlanView)
@@ -17,4 +17,7 @@ urlpatterns = [
     #Add a route for listing all subscriptions for a specific user:
     
     path('api/user-subscriptions/<str:user_id>/', UserSubscriptionViewSet.as_view({'get': 'list'}), name='user_subscriptions_list'),
+
+    path('api/user-multiple-subscriptions/<str:user_id>/', UserSubscriptionListView.as_view(), name='user_subscription_detail'),
+
 ]

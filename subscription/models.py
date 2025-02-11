@@ -24,14 +24,18 @@ class SubscriptionPlan(models.Model):
 
 class UserSubscription(models.Model):
     user = models.ForeignKey(Organization, on_delete=models.CASCADE, to_field='unique_subscriber_id')
+    subscribed_organization_address = models.CharField(max_length=100, null=True, blank=True)
     subscription_plan = models.ForeignKey(SubscriptionPlan, on_delete=models.SET_NULL, null=True, to_field='unique_subscription_plan_id')
     start_date = models.DateField(default=now)
     end_date = models.DateField(blank=True, null=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     transaction_id = models.CharField(max_length=100, null=True, blank=True)
     subscribing_organization_name = models.CharField(max_length=100, null=True, blank=True)
+
+    allowed_num_0f_cert_upload = models.PositiveIntegerField(default=0)
     
     # New fields to record the amount and duration
+    
     subscribed_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Amount paid by the user
     subscribed_duration = models.PositiveIntegerField(null=True, blank=True)  # Duration in months
 
