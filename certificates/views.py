@@ -135,7 +135,7 @@ class CertificateCreateView(viewsets.ModelViewSet):
             return Response({'error': 'Subscription is required to upload certificates after trial period.'}, status=status.HTTP_403_FORBIDDEN)
         
         # Check if the organization is activated
-        if not organization.is_verified:
+        if organization.is_subscribed and not organization.is_activated:
             return Response({'error': 'You have not been activated to use our service, Please contact support@cmvp.com'},
                             status=status.HTTP_403_FORBIDDEN)
 

@@ -117,6 +117,7 @@ class OrganizationSubscriptionView(APIView):
                     'is_active': org.is_active,
                     'address': org.address,
                     'date_joined': org.date_joined,
+                    'is_activated': org.is_activated,
                     'subscription_plan_name': subscription.subscription_plan.name,
                     'subscription_start_time': subscription.start_date,
                     'subscription_end_time': subscription.end_date,
@@ -133,6 +134,7 @@ class OrganizationSubscriptionView(APIView):
                     'is_active': org.is_active,
                     'address': org.address,
                     'date_joined': org.date_joined,
+                    'is_activated': org.is_activated,
                     'subscription_plan_name': '30-Day Trial',
                     'subscription_start_time': org.trial_start_date,
                     'subscription_end_time': org.trial_end_date,
@@ -161,6 +163,7 @@ class OrganizationView(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     queryset = Organization.objects.all().order_by('id')
     serializer_class = OrganizationSerializer
+    pagination_class = OrganizationPagination
 
     def partial_update(self, request, *args, **kwargs):
         unique_subscriber_id = kwargs.get('unique_subscriber_id')
