@@ -1,6 +1,3 @@
-
-
-
 from datetime import timedelta
 from pathlib import Path
 import os
@@ -18,12 +15,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+SECRET_KEY = 'django-insecure-o&jaw6hh_h3j(42rgcyl+#(hqr+bujhqv^50ae+6oza6br$o#j'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['44.205.44.84', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['cmvp-api-v1.onrender.com', 'localhost', '127.0.0.1','jumia-clone-api-11vb.onrender.com']
 
 
 # Application definition
@@ -37,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
 
-    'storages',
+    # 'storages',
     #Second Party Apps
     'users',        # Make sure this is included
     'certificates',  # Make sure this is included
@@ -87,6 +84,14 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
+
+# Allow credentials if necessary
+# CORS_ALLOW_CREDENTIALS = True
+
+# # Allow all origins for development (use only if you trust all origins)
+# CORS_ALLOW_ALL_ORIGINS = True
+
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,  # 10 messages per page
@@ -100,12 +105,23 @@ REST_FRAMEWORK = {
     ],
 }
 
+# Email settings for Hostinger
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.hostinger.com'
+# EMAIL_PORT = 465 
+# EMAIL_USE_SSL = True 
+# EMAIL_USE_TLS = False  
+# EMAIL_HOST_USER = 'ekenehanson@sterlingspecialisthospitals.com' 
+# EMAIL_HOST_PASSWORD = '123@Qwertyqwerty@123'
+# DEFAULT_FROM_EMAIL = 'ekenehanson@sterlingspecialisthospitals.com'
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.privateemail.com'
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'support@cmvp.net'
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD'),
+EMAIL_HOST_PASSWORD = 'qwertyqwerty'
 DEFAULT_FROM_EMAIL = 'support@cmvp.net'
 
 
@@ -139,17 +155,36 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvp_test_1',
-        'USER': 'ekenehanson',
-        'PASSWORD':  os.getenv('DATABASES_PASSWORD'),
-        'HOST': 'database-1.c5wy6gis8pov.us-east-1.rds.amazonaws.com',
-        'PORT': '5432', 
+        'NAME': 'cmvp_db_c26x',
+        'USER': 'cmvp_db_c26x_user',
+        'PASSWORD': 'LzRpuDeBZ0SeWaEVzLN61u3IdADsaql3',
+        'HOST': 'dpg-cucfe7rv2p9s73d71pc0-a.oregon-postgres.render.com',
+        'PORT': '5432',  # Default PostgreSQL port
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'cmvp_test_1',
+#         'USER': 'ekenehanson',
+#         'PASSWORD': '123qwerty123',
+#         'HOST': 'database-1.c5wy6gis8pov.us-east-1.rds.amazonaws.com',
+#         'PORT': '5432', 
+#     }
+# }
+
 
 
 SIMPLE_JWT = {
@@ -212,9 +247,21 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 
+# AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+# AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+# AWS_STORAGE_BUCKET_NAME = 'cmvp-files'
+# AWS_S3_SIGNATURE_VERSION = 's3v4'
+# AWS_S3_REGION_NAME = 'eu-north-1'
+# AWS_S3_FILE_OVERWRITE = False  # Prevents overwriting files with the same name
+# AWS_DEFAULT_ACL = None
+# AWS_S3_VERIFY = True
+# AWS_S3_ADDRESSING_STYLE = "virtual"  # Helps resolve issues in some regions
 
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+
+
+
+# AWS_ACCESS_KEY_ID = "AKIAWCYX7YU2VMDWSTZM"
+# AWS_SECRET_ACCESS_KEY = "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"
 AWS_STORAGE_BUCKET_NAME = 'cmvp-files'
 AWS_S3_SIGNATURE_VERSION = 's3v4'
 AWS_S3_REGION_NAME = 'eu-north-1'
@@ -223,13 +270,33 @@ AWS_DEFAULT_ACL = None
 AWS_S3_VERIFY = True
 AWS_S3_ADDRESSING_STYLE = "virtual"  # Helps resolve issues in some regions
 
-STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.s3.S3Storage",
-    },
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "storages.backends.s3.S3Storage",
+#     },
 
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
+#     "staticfiles": {
+#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+#     },
+# }
+
+
+# MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
+
+
+# Set MEDIA_ROOT to an empty string (not needed for S3)
+# MEDIA_ROOT = ''
+
+STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+
+REMITA_API_KEY = "abc12345xyz67890mnopqrstuv"
+REMITA_MERCHANT_ID = "your_remita_merchant_id_here"
+REMITA_SERVICE_TYPE_ID = "your_remit_service_type_id_here"
+REMITA_BASE_URL = "https://remita.net" 
+
+
+
 
