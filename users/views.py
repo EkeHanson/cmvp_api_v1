@@ -208,7 +208,7 @@ class OrganizationView(viewsets.ModelViewSet):
                         <p style="margin-top: 10px; color:#D8F3DC;">Or copy and paste this token on the verification page:</p>
                         <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
                         <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
-                            <h5>Thanks for using our platform</h5>
+                            <h5>Thank you for using our platform</h5>
                             <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
                             <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
                         </footer>
@@ -314,7 +314,7 @@ class ResendVerificationEmailView(APIView):
                                 <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Or copy and paste this token on the verification page:</p>
                                 <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
                                  <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
-                                    <h5>Thanks for using our platform</h5>
+                                    <h5>Thank you for using our platform</h5>
                                     <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
                                     <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
                                 </footer>
@@ -382,7 +382,7 @@ class LoginView(generics.GenericAPIView):
                             <p style="margin-top: 10px; color:#D8F3DC;"><strong style="color: #FE6601 !important;">Browser:</strong> {browser_name}</p>
                             <p style="margin-top: 10px; color:#D8F3DC;">If this wasn't you, please reset your password immediately.</p>
                             <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
-                                <h5>Thanks you for using our platform</h5>
+                                <h5>Thank you for using our platform</h5>
                                 <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
                                 <p style="font-size: 13px !important; color: #fff !important;">
                                     ©
@@ -505,7 +505,7 @@ class ResetPasswordView(views.APIView):
                                 <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Note this email will expire in five (5) minutes.</p>
 
                                  <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
-                                    <h5>Thanks for using our platform</h5>
+                                    <h5>Thank you for using our platform</h5>
                                     <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
                                     <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
                                 </footer>
@@ -586,7 +586,7 @@ def send_contact_email(request):
                                 <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Message:</strong> {message_body}</p>
 
                                  <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
-                                    <h5>Thanks for using our platform</h5>
+                                    <h5>Thank you for using our platform</h5>
                                     <p style="font-size: 13px !important; color: #fff !important;">You can reach us via <a href="mailto:support@cmvp.net" style="color:#D8F3DC !important; text-decoration: underline !important;">support@cmvp.net</a>. We are always available to answer your questions.</p>
                                     <p style="font-size: 13px !important; color: #fff !important;">© <script>document.write(new Date().getFullYear());</script> CMVP. All rights reserved.</p>
                                 </footer>
