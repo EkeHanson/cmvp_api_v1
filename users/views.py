@@ -135,7 +135,7 @@ class OrganizationSubscriptionView(APIView):
                     'address': org.address,
                     'date_joined': org.date_joined,
                     'is_activated': org.is_activated,
-                    'subscription_plan_name': '30-Day Trial',
+                    'subscription_plan_name': '8-Day Trial',
                     'subscription_start_time': org.trial_start_date,
                     'subscription_end_time': org.trial_end_date,
                     'subscription_duration': (org.trial_end_date - org.trial_start_date).days,
