@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
 
-    # 'storages',
+    'storages',
     #Second Party Apps
     'users',        # Make sure this is included
     'certificates',  # Make sure this is included
@@ -105,16 +105,6 @@ REST_FRAMEWORK = {
     ],
 }
 
-# Email settings for Hostinger
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.hostinger.com'
-# EMAIL_PORT = 465 
-# EMAIL_USE_SSL = True 
-# EMAIL_USE_TLS = False  
-# EMAIL_HOST_USER = 'ekenehanson@sterlingspecialisthospitals.com' 
-# EMAIL_HOST_PASSWORD = '123@Qwertyqwerty@123'
-# DEFAULT_FROM_EMAIL = 'ekenehanson@sterlingspecialisthospitals.com'
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.privateemail.com'
@@ -125,10 +115,6 @@ EMAIL_HOST_PASSWORD = 'qwertyqwerty'
 DEFAULT_FROM_EMAIL = 'support@cmvp.net'
 
 
-
-
-# DEFAULT_WEB_PAGE_BASE_URL = "http://localhost:5173"
-# DEFAULT_WEB_PAGE_BASE_URL = "https://cmvp-project.vercel.app"
 DEFAULT_WEB_PAGE_BASE_URL = "https://cmvp.net"
 
 
@@ -162,28 +148,29 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cmvp_db_c26x',
-        'USER': 'cmvp_db_c26x_user',
-        'PASSWORD': 'LzRpuDeBZ0SeWaEVzLN61u3IdADsaql3',
-        'HOST': 'dpg-cucfe7rv2p9s73d71pc0-a.oregon-postgres.render.com',
-        'PORT': '5432',  # Default PostgreSQL port
-    }
-}
-
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'cmvp_test_1',
-#         'USER': 'ekenehanson',
-#         'PASSWORD': '123qwerty123',
-#         'HOST': 'database-1.c5wy6gis8pov.us-east-1.rds.amazonaws.com',
-#         'PORT': '5432', 
+#         'NAME': 'cmvp_db_c26x',
+#         'USER': 'cmvp_db_c26x_user',
+#         'PASSWORD': 'LzRpuDeBZ0SeWaEVzLN61u3IdADsaql3',
+#         'HOST': 'dpg-cucfe7rv2p9s73d71pc0-a.oregon-postgres.render.com',
+#         'PORT': '5432',  # Default PostgreSQL port
 #     }
 # }
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'cmvp_test_1',
+        'USER': 'ekenehanson',
+        'PASSWORD': '123qwerty123',
+        'HOST': 'database-1.c5wy6gis8pov.us-east-1.rds.amazonaws.com',
+        'PORT': '5432', 
+    }
+}
+
 
 
 
@@ -260,25 +247,27 @@ logger.addHandler(logging.StreamHandler())
 
 
 
-# AWS_ACCESS_KEY_ID = "AKIAWCYX7YU2VMDWSTZM"
-# AWS_SECRET_ACCESS_KEY = "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"
+
+# AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+# AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = 'cmvp-files'
 AWS_S3_SIGNATURE_VERSION = 's3v4'
 AWS_S3_REGION_NAME = 'eu-north-1'
-AWS_S3_FILE_OVERWRITE = False  # Prevents overwriting files with the same name
+AWS_S3_FILE_OVERWRITE = True  # Prevents overwriting files with the same name
+#AWS_S3_FILE_OVERWRITE = False  # Prevents overwriting files with the same name
 AWS_DEFAULT_ACL = None
 AWS_S3_VERIFY = True
 AWS_S3_ADDRESSING_STYLE = "virtual"  # Helps resolve issues in some regions
 
-# STORAGES = {
-#     "default": {
-#         "BACKEND": "storages.backends.s3.S3Storage",
-#     },
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
 
-#     "staticfiles": {
-#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-#     },
-# }
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 
 # MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
