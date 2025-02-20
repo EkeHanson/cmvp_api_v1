@@ -22,7 +22,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
         # Set trial dates
         validated_data['trial_start_date'] = now()
-        validated_data['trial_end_date'] = now() + timedelta(days=8)
+        validated_data['trial_end_date'] = now() + timedelta(days=14)
 
         user = Organization(**validated_data)
         user.set_password(password)
