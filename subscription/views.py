@@ -195,6 +195,8 @@ class UserSubscriptionListView(generics.ListAPIView):  # Change from RetrieveAPI
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+
 def initiate_payment(user, subscription_plan):
     remita_url = "https://remita.net/api/payment/initiate"
     headers = {

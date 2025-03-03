@@ -17,8 +17,9 @@ from rest_framework.routers import DefaultRouter
 
 
 router = DefaultRouter()
-router.register(r'organization', OrganizationView)
+router.register(r'organization', OrganizationView,  basename='organization')
 router.register(r'background_image', BackgroundImageView)
+
 
 
 urlpatterns = [

@@ -35,7 +35,7 @@ class OrganizationPagination(PageNumberPagination):
 
 
 class OrganizationSearchView(APIView):
-    print("OrganizationSearchView called!")  # Debugging
+    #print("OrganizationSearchView called!")  # Debugging
     permission_classes = [AllowAny]
     pagination_class = OrganizationPagination
 
@@ -203,9 +203,8 @@ class OrganizationView(viewsets.ModelViewSet):
                     <div style="position: relative; width: 700px; height: auto; text-align: center; padding: 80px 0px; padding-bottom: 0px !important;">
                         <img src="https://cmvp.net/assets/logo-lit-Cz1jHCfU.png" style="max-width: 150px; margin-bottom: 80px;" />
                         <h3 style="font-size: 30px; font-weight: 700;">{organization.name}!</h3>
-                        <p style="margin-top: 10px; color:#D8F3DC;">Click the link below to verify your email:</p>
-                        <a href="{verification_link}" style="position: relative; margin: 30px 0px; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 10px 30px; background-color: #FE6601; color: #fff; margin-top: 50px; border-radius: 8px; border:1px solid #FE6601; text-decoration: none; transition:all 0.3s ease-in-out;">Verify Email</a>
-                        <p style="margin-top: 10px; color:#D8F3DC;">Or copy and paste this token on the verification page:</p>
+
+                        <p style="margin-top: 10px; color:#D8F3DC;">copy and paste this token on the verification page:</p>
                         <h1 style="font-size: 40px; font-weight: 700; color: #FE6601; margin-top: 30px;">{organization.verification_token}</h1>
                         <footer style="position: relative; width: 100%; height: auto; margin-top: 50px; padding: 30px; background-color: rgba(255,255,255,0.1);">
                             <h5>Thank you for using our platform</h5>
